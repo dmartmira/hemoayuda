@@ -1,4 +1,5 @@
 # HemoAyuda
+## Aplicación en fase Alpha, se recomienda contactar con @dmartmira a través de Telegram (indicando que quieres probar la app) para realizar pruebas.
 
 Aplicación web de seguimiento de episodios de sangrado para personas con hemofilia. Es un único archivo (`index.html`), sin instalación ni servidor: todo funciona en el navegador y los datos se guardan solo en el dispositivo de cada persona.
 
