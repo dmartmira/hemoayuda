@@ -72,12 +72,7 @@ Resumen de las actualizaciones realizadas en esta sesión de trabajo sobre la ap
 
 - Fondo general unificado en blanco, sin tarjetas con caja, para un aspecto más limpio.
 - Aplicado un estilo **glassmorphism** (cristal esmerilado, efecto "iOS"): barra de navegación flotante y translúcida, menú y tarjetas con desenfoque de fondo, botón de registro con anillo de cristal.
-
-## 📦 Publicación
-
-- Preparados los archivos `index.html` y `README.md` para publicar la aplicación en **GitHub Pages**, con instrucciones paso a paso.
-- `README.md` actualizado para describir el funcionamiento de cada pestaña.
-
+  
 ---
 
 > **Nota:** esta aplicación es una herramienta de apoyo para el registro y seguimiento de episodios de sangrado y medicación en hemofilia. No sustituye las indicaciones del equipo de hematología ni constituye asesoramiento médico.
