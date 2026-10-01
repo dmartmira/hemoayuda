@@ -44,16 +44,6 @@ Totales generales: número de episodios, episodios en los últimos 30 días, epi
 ### Privacidad
 Explica que HemoAyuda no guarda información en servidores ni en la nube, que todo se queda en local en el dispositivo del paciente, y qué pasa si se cambia de navegador o dispositivo. Incluye enlaces externos a FEDHEMO, la Federación Mundial de Hemofilia (WFH) y Liberate Life de Sobi.
 
-## Publicar en GitHub Pages
-
-1. Crea un repositorio nuevo en GitHub y sube `index.html` (y este `README.md`) a la rama `main`.
-2. Ve a **Settings → Pages**.
-3. En **Source**, elige **Deploy from a branch**, rama `main`, carpeta `/ (root)`, y guarda.
-4. En uno o dos minutos, GitHub mostrará la URL pública, con esta forma:
-   `https://TU-USUARIO.github.io/NOMBRE-DEL-REPOSITORIO/`
-
-No hace falta compilación: es un único archivo `index.html` autocontenido. GitHub Pages sirve el sitio por HTTPS automáticamente.
-
 ## Aviso
 
 HemoAyuda es una herramienta de apoyo para llevar un registro estructurado de los episodios de sangrado. No sustituye las indicaciones del equipo de hematología ni constituye asesoramiento médico.
