@@ -1,15 +1,14 @@
 # Registro de cambios — HemoAyuda
+## Actualización: **07/01/2026**
 
-Resumen de las actualizaciones realizadas sobre la aplicación **HemoAyuda**, organizadas por pestaña.
+Resumen de las actualizaciones realizadas sobre la aplicación **HemoAyuda**, organizadas por pestaña. 
 
 ---
 
 ## 🔐 Inicio de sesión / Registro
 
 - Pantalla con la que arranca la aplicación si no hay una sesión activa. Permite **iniciar sesión** o **crear una cuenta** con usuario y contraseña. Ninguna otra pantalla es accesible sin iniciar sesión.
-- Tras introducir las credenciales, aparece una pantalla de carga («Cargando información del usuario…») durante al menos 1,5 segundos antes de entrar a la app.
 - Conectado a una base de datos real en **Supabase**, con seguridad por fila (*Row Level Security*): cada persona solo puede leer y escribir sus propios datos.
-- Usuario de pruebas disponible: `daniel` / `123456`.
 
 ## 🏠 Inicio
 
@@ -59,22 +58,11 @@ Ahora es una pantalla con las opciones en formato lista (sin menú desplegable):
 
 - Interfaz completa en **Español** e **English**, seleccionable desde Ajustes → Configuración.
 
-## 🎨 Estilo visual
-
-- Fondo general unificado, sin tarjetas con caja, con un estilo **glassmorphism** (cristal esmerilado) en la barra de navegación y los elementos flotantes.
-- **Modo claro fijo** (sin modo oscuro).
-- Nueva paleta de colores: burdeos `#800020` como color principal, rosa `#D45060` para alertas y SOS, beige `#F3E6D5` y crema `#FFF9F2` como fondos y bordes.
-- Icono activo de la barra de navegación señalado con una barrita de luz, sin sombreado.
-
 ## 🗄️ Base de datos (Supabase)
 
-- Tablas `episodes`, `medications` y `sos_profile`, protegidas con seguridad por fila (cada persona solo ve sus propios datos).
-- Autenticación por usuario y contraseña (internamente basada en email, invisible para quien usa la app).
+- Tablas protegidas con seguridad por fila (cada persona solo ve sus propios datos).
+- Autenticación por usuario y contraseña.
 - Mientras tanto, la app mantiene una copia local en el navegador para funcionar sin conexión; se borra al cerrar sesión.
-
-## 📦 Publicación
-
-- `index.html` y `README.md` listos para publicar en **GitHub Pages**.
 
 ---
 
