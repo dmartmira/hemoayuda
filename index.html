@@ -180,9 +180,14 @@ nav button.fab:active{transform:translateY(-16px)}
 .mh-er:active{background:var(--tint)}
 .mh-dd{width:40px;flex:none;text-align:center;border:1px solid var(--ln);border-radius:6px;padding:4px 0;line-height:1.1}
 .mh-dd b{display:block;font-size:17px}.mh-dd small{font-size:10.5px;text-transform:uppercase;color:var(--m)}
-.mh-eb{flex:1;min-width:0}.mh-eb b{display:block;font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.mh-eb small{color:var(--ink2);font-size:12px}
+.mh-eb{flex:1;min-width:0}.mh-eb b{display:block;font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.mh-eb small{display:block;color:var(--ink2);font-size:12px}
 .mh-es{flex:none;font-size:11.5px;font-weight:600}
 a.btn{text-decoration:none}
+.tb{position:absolute;top:8px;right:14px;z-index:6;display:flex;gap:6px}
+.tb button{position:relative;width:38px;height:38px;border-radius:50%;border:1px solid var(--b);background:var(--c);color:var(--t);display:grid;place-items:center;padding:0;cursor:pointer}
+.tb .i{width:19px;height:19px}
+.tb .bdg{position:absolute;top:6px;right:7px;width:9px;height:9px;border-radius:50%;background:var(--r);border:2px solid var(--c)}
+.mh-btn:disabled{opacity:.6;cursor:default}
 .i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;display:block;margin:0 auto;flex:none}
 .i.warn{stroke:#f5b301;width:20px;height:20px;display:inline-block;margin:0 8px 0 0;vertical-align:-4px}
 .ic .i{width:20px;height:20px}
@@ -247,6 +252,7 @@ const AU={mode:'login',user:'',pass:'',pass2:''};
 async function enterApp(){
   AUTH_LOADING=true;AUTH_BUSY=false;R();
   await Promise.all([loadUserData(),new Promise(r=>setTimeout(r,1500))]);
+  setTimeout(()=>addNotif(tt('Datos sincronizados'),tt('Tus registros se han cargado desde tu cuenta.'),{t:'ok'}),0);
   AUTHED=true;CLOUD=true;AUTH_LOADING=false;LAST_LOGIN=fl(now());
 }
 async function loadUserData(){
@@ -366,7 +372,7 @@ ${kv('Dolor ahora',d.cmp||d.pain2!=5?d.pain2+'/10':'')}${kv('Respuesta',d.cmp)}$
 function quick(){const d=S.d;return hd('Registrar sangrado',1)+`<div class="card"><b>🩸 Modo rápido</b><br><small>Registra la información básica ahora y completa el resto más tarde.</small></div><h3>¿Dónde se produce?</h3><div class="grid">${TYPES.map(t=>`<button class="tp${d.type==t[0]?' on':''}" data-a="set" data-k="type" data-v="${t[0]}"><span>${t[1]}</span>${t[0]}</button>`).join('')}</div><h3>${'&nbsp;'}</h3>${rng('pain','Dolor actual')}<h3>¿Por qué ocurrió?</h3><div class="chs">${[['Espontáneo','Espontáneo'],['Después de un golpe','Golpe'],['Después de ejercicio/actividad física','Actividad'],['Otro','Otro']].map(c=>chip('cause',c[0],d.cause,c[1])).join('')}</div><button class="btn red" data-a="saveq">Registrar ahora</button><button class="btn link" data-a="full">Prefiero el formulario completo</button>`}
 
 const cnt=s=>E.filter(d=>d.status==s).length;
-const ICN={"home": "<path d=\"M3 11l9-8 9 8\"/><path d=\"M5 10v10h14V10\"/>", "act": "<path d=\"M3 12h4l3-8 4 16 3-8h4\"/>", "sos": "<circle cx=\"12\" cy=\"12\" r=\"9\"/><circle cx=\"12\" cy=\"12\" r=\"3.5\"/><path d=\"M5.6 5.6l3.9 3.9M14.5 14.5l3.9 3.9M18.4 5.6l-3.9 3.9M9.5 14.5l-3.9 3.9\"/>", "user": "<circle cx=\"12\" cy=\"8\" r=\"4\"/><path d=\"M4 21c0-4 4-6 8-6s8 2 8 6\"/>", "cfg": "<path d=\"M4 6h8M18 6h2M4 12h2M12 12h8M4 18h10M20 18h0\"/><circle cx=\"15\" cy=\"6\" r=\"2.2\"/><circle cx=\"9\" cy=\"12\" r=\"2.2\"/><circle cx=\"17\" cy=\"18\" r=\"2.2\"/>", "lock": "<rect x=\"5\" y=\"11\" width=\"14\" height=\"10\" rx=\"2\"/><path d=\"M8 11V8a4 4 0 0 1 8 0v3\"/>", "out": "<path d=\"M9 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h4\"/><path d=\"M16 8l4 4-4 4M20 12H9\"/>", "drop": "<path d=\"M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z\"/>", "pill": "<rect x=\"3\" y=\"8\" width=\"18\" height=\"8\" rx=\"4\" transform=\"rotate(-45 12 12)\"/><path d=\"M9 9l6 6\"/>", "tools": "<rect x=\"3\" y=\"7\" width=\"18\" height=\"13\" rx=\"2\"/><path d=\"M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 13h18\"/>", "alert": "<path d=\"M12 3L2.5 20h19L12 3z\"/><path d=\"M12 10v4.5M12 17.5h.01\"/>"};const ic=(n,c)=>`<svg class="i${c?' '+c:''}" viewBox="0 0 24 24" aria-hidden="true">${ICN[n]}</svg>`;
+const ICN={"home": "<path d=\"M3 11l9-8 9 8\"/><path d=\"M5 10v10h14V10\"/>", "act": "<path d=\"M3 12h4l3-8 4 16 3-8h4\"/>", "sos": "<circle cx=\"12\" cy=\"12\" r=\"9\"/><circle cx=\"12\" cy=\"12\" r=\"3.5\"/><path d=\"M5.6 5.6l3.9 3.9M14.5 14.5l3.9 3.9M18.4 5.6l-3.9 3.9M9.5 14.5l-3.9 3.9\"/>", "user": "<circle cx=\"12\" cy=\"8\" r=\"4\"/><path d=\"M4 21c0-4 4-6 8-6s8 2 8 6\"/>", "cfg": "<path d=\"M4 6h8M18 6h2M4 12h2M12 12h8M4 18h10M20 18h0\"/><circle cx=\"15\" cy=\"6\" r=\"2.2\"/><circle cx=\"9\" cy=\"12\" r=\"2.2\"/><circle cx=\"17\" cy=\"18\" r=\"2.2\"/>", "lock": "<rect x=\"5\" y=\"11\" width=\"14\" height=\"10\" rx=\"2\"/><path d=\"M8 11V8a4 4 0 0 1 8 0v3\"/>", "out": "<path d=\"M9 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h4\"/><path d=\"M16 8l4 4-4 4M20 12H9\"/>", "drop": "<path d=\"M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z\"/>", "pill": "<rect x=\"3\" y=\"8\" width=\"18\" height=\"8\" rx=\"4\" transform=\"rotate(-45 12 12)\"/><path d=\"M9 9l6 6\"/>", "tools": "<rect x=\"3\" y=\"7\" width=\"18\" height=\"13\" rx=\"2\"/><path d=\"M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 13h18\"/>", "alert": "<path d=\"M12 3L2.5 20h19L12 3z\"/><path d=\"M12 10v4.5M12 17.5h.01\"/>", "bell": "<path d=\"M6 9a6 6 0 0 1 12 0c0 6 2 7.5 2 7.5H4S6 15 6 9z\"/><path d=\"M10 20a2 2 0 0 0 4 0\"/>", "news": "<rect x=\"3\" y=\"4\" width=\"14\" height=\"16\" rx=\"2\"/><path d=\"M17 9h3a1 1 0 0 1 1 1v8a2 2 0 0 1-2 2M7 8h6M7 12h6M7 16h4\"/>", "refresh": "<path d=\"M20 12a8 8 0 1 1-2.5-5.8\"/><path d=\"M20 4v4h-4\"/>", "down": "<path d=\"M12 4v11M7 11l5 5 5-5M5 20h14\"/>", "check": "<path d=\"M5 12.5l4.5 4.5L19 7\"/>"};const ic=(n,c)=>`<svg class="i${c?' '+c:''}" viewBox="0 0 24 24" aria-hidden="true">${ICN[n]}</svg>`;
 const MENU=[['wiz',ic('drop'),'Nuevo sangrado'],['med',ic('pill'),'Medicación'],['util',ic('tools'),'Utilidades']];
 const BUG_URL='https://t.me/dmartmira?text='+encodeURIComponent('Asunto: Error detectado en HemoAyuda\n\nDescripción del problema:\n');
 function home(){return `<div class="hdr"><img class="lg" src="${LOGO}" alt="HemoAyuda"></div><div class="fcg">${MENU.map(m=>`<button class="fc${m[0]=='sos'?' fcr':''}" data-a="${m[0]=='new'?'new':(m[0]=='priv'?'priv':(m[0]=='wiz'?'newwiz':(m[0]=='util'?'utilgo':'tab')))}" data-v="${m[0]}"><span>${m[1]}</span>${m[2]}</button>`).join('')}</div><h3>Últimos episodios</h3><div class="card">${E.length?E.slice(0,5).map((d,i)=>epRow(d,i)).join(''):'<p><small>Aún no hay episodios. Pulsa Registrar para añadir un sangrado.</small></p>'}</div><a class="btn o" href="${BUG_URL}" target="_blank" rel="noopener noreferrer">${ic('alert','warn')}${tt('Reportar un error')}</a>`}
@@ -443,7 +449,7 @@ function sett(){return hd(tt('Configuración'),1)+`<div class="card sw"><b>Idiom
 </select></div><div class="card"><b>Tus datos</b><p class="note">Los episodios se guardan solo en este navegador. Esta herramienta te ayuda a llevar un registro para tu equipo de hematología, pero no sustituye sus indicaciones.</p><button class="btn" data-a="exp">Exportar todos los registros (CSV)</button><button class="btn o" data-a="expmed">${tt('Exportar dosis de medicación (CSV)')}</button><p class="note">${tt('Se descarga un archivo CSV que puedes abrir directamente en Excel, Google Sheets o cualquier hoja de cálculo.')}</p><button class="btn link" data-a="clr">${S.del?'Pulsa otra vez para borrar todo':'Borrar todos los datos'}</button></div><div id="msg" class="note" role="status"></div>`}
 async function downloadCsv(filename,csv,m){
 try{const dl=window.claude&&await window.claude.use('downloads');
-if(dl){await dl.save({filename,data:csv});m.textContent=tt('Archivo descargado. Ya puedes abrirlo en Excel o Google Sheets.');return}}catch(e){}
+if(dl){await dl.save({filename,data:csv});m.textContent=tt('Archivo descargado. Ya puedes abrirlo en Excel o Google Sheets.');addNotif(tt('Archivo descargado'),filename,{t:'dl'});return}}catch(e){}
 try{
 const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
 const url=URL.createObjectURL(blob);
@@ -451,7 +457,7 @@ const a=document.createElement('a');
 a.href=url;a.download=filename;a.style.display='none';
 document.body.appendChild(a);a.click();document.body.removeChild(a);
 setTimeout(()=>URL.revokeObjectURL(url),1000);
-m.textContent=tt('Archivo descargado. Ya puedes abrirlo en Excel o Google Sheets.');
+m.textContent=tt('Archivo descargado. Ya puedes abrirlo en Excel o Google Sheets.');addNotif(tt('Archivo descargado'),filename,{t:'dl'});
 return;
 }catch(e){}
 try{await navigator.clipboard.writeText(csv);m.textContent=tt('La descarga no está disponible aquí; el CSV se ha copiado al portapapeles para pegarlo en una hoja de cálculo.')}catch(e){m.textContent=tt('La exportación no está disponible en este navegador.')}
@@ -559,13 +565,52 @@ ${d.kind=='Profilaxis'?`<h3>${tt('¿Dónde se ha colocado?')}</h3><p class="note
 <label>${tt('Notas')}</label><textarea rows="2" data-m="notes" placeholder="${tt('En caso de reacción u otro síntoma, indícalo aquí')}">${esc(d.notes)}</textarea>
 <button class="btn" data-a="mdsave">${tt('Guardar')}</button>`}
 function navUser(){const u=(CURRENT_USER||(P.name||'').trim().split(/\s+/)[0]||'').trim();if(!u)return 'Perfil';return esc(u.length>8?u.slice(0,7)+'…':u)}
+/* ===== Notificaciones y novedades (RSS) ===== */
+const APP_VERSION='v4';
+/* Fuentes RSS: se rellenarán más adelante. Formato: {name:'Nombre',url:'https://…/feed.xml'}
+   Si una web no permite leer su feed desde el navegador (CORS), pon en RSS_PROXY la dirección de un proxy propio
+   que acepte la URL codificada al final, p. ej. 'https://mi-proxy.example/?url='. */
+const RSS_SOURCES=[];
+const RSS_PROXY='';
+let N=[];try{N=JSON.parse(localStorage.getItem('hmn')||'[]')}catch(e){}
+let NEWS={items:[],errs:[],ts:0,loading:false};try{const c=JSON.parse(localStorage.getItem('hmr')||'null');if(c&&Array.isArray(c.items))NEWS={items:c.items,errs:[],ts:c.ts||0,loading:false}}catch(e){}
+const saveN=()=>{try{localStorage.setItem('hmn',JSON.stringify(N.slice(0,50)))}catch(e){}};
+const unreadN=()=>N.filter(n=>!n.read).length;
+function topbar(){const u=unreadN();return `<div class="tb" id="topbar"><button data-a="notif" aria-label="${tt('Notificaciones')}">${ic('bell')}${u?`<i class="bdg" aria-label="${u} ${tt('sin leer')}"></i>`:''}</button><button data-a="news" aria-label="${tt('Novedades')}">${ic('news')}</button></div>`}
+function addNotif(title,body,extra){N.unshift(Object.assign({id:Date.now()+Math.random().toString(36).slice(2,6),title,body:body||'',ts:Date.now(),read:false},extra||{}));N=N.slice(0,50);saveN();const t=document.getElementById('topbar');if(t)t.outerHTML=topbar();if(S.scr=='notif')R()}
+const fmtTs=ts=>{const d=new Date(ts),h=d.toTimeString().slice(0,5),t=new Date();return d.toDateString()==t.toDateString()?tt('Hoy')+' · '+h:d.toLocaleDateString('es-ES',{day:'numeric',month:'short'})+' · '+h};
+function notifScreen(){const un=S.nUnread||[];
+return hd(tt('Notificaciones'),1)+`<div class="mh"><section class="mh-card"><div class="mh-head"><div><h4>${tt('Avisos')}</h4><p class="hint">${tt('Actualizaciones, descargas y procesos terminados.')}</p></div>${N.length?`<button class="mh-btn" data-a="nclear">${tt('Borrar todo')}</button>`:''}</div>
+${N.length?N.map(n=>`<div class="mh-er" style="cursor:default"><div class="mh-dd" style="${un.includes(n.id)?'border-color:var(--r)':''}">${ic(n.t=='upd'?'refresh':(n.t=='dl'?'down':'check'))}</div><div class="mh-eb"><b style="white-space:normal">${esc(n.title)}</b><small>${esc(n.body)}${n.body?' · ':''}${fmtTs(n.ts)}</small>${n.t=='upd'?`<button class="mh-btn" style="margin-top:8px" data-a="doupd">${tt('Actualizar ahora')}</button>`:''}</div></div>`).join(''):`<p class="empty">${tt('No tienes notificaciones.')}</p>`}</section></div>`}
+const safeUrl=u=>/^https?:\/\//i.test(u||'')?u:'';
+const rssTxt=(el,t)=>{const x=el.getElementsByTagName(t)[0];return x?x.textContent.trim():''};
+function parseFeed(xml,src){const d=new DOMParser().parseFromString(xml,'text/xml');if(d.getElementsByTagName('parsererror').length)throw new Error('xml');
+const out=[];[...d.getElementsByTagName('item')].forEach(it=>out.push({s:src,t:rssTxt(it,'title'),u:rssTxt(it,'link'),d:Date.parse(rssTxt(it,'pubDate')||rssTxt(it,'dc:date'))||0}));
+[...d.getElementsByTagName('entry')].forEach(it=>{const l=it.getElementsByTagName('link')[0];out.push({s:src,t:rssTxt(it,'title'),u:l?(l.getAttribute('href')||''):'',d:Date.parse(rssTxt(it,'updated')||rssTxt(it,'published'))||0})});return out}
+async function loadNews(){if(NEWS.loading||!RSS_SOURCES.length)return;NEWS.loading=true;NEWS.errs=[];if(S.scr=='news')R();
+const all=[];await Promise.all(RSS_SOURCES.map(async s=>{try{const r=await fetch(RSS_PROXY?RSS_PROXY+encodeURIComponent(s.url):s.url);if(!r.ok)throw new Error(r.status);all.push(...parseFeed(await r.text(),s.name).slice(0,20))}catch(e){NEWS.errs.push(s.name)}}));
+if(all.length){NEWS.items=all.filter(x=>x.t).sort((a,b)=>b.d-a.d).slice(0,60);NEWS.ts=Date.now();try{localStorage.setItem('hmr',JSON.stringify({ts:NEWS.ts,items:NEWS.items}))}catch(e){}}
+NEWS.loading=false;if(S.scr=='news')R()}
+function newsScreen(){const L=NEWS.items;
+return hd(tt('Novedades'),1)+`<div class="mh"><section class="mh-card"><div class="mh-head"><div><h4>${tt('Novedades sobre hemofilia')}</h4><p class="hint">${RSS_SOURCES.length?RSS_SOURCES.length+' '+tt('fuentes')+(NEWS.ts?' · '+tt('actualizado')+' '+fmtTs(NEWS.ts):''):tt('Aún no hay fuentes configuradas. Se añadirán próximamente.')}</p></div>${RSS_SOURCES.length?`<button class="mh-btn" data-a="newsref"${NEWS.loading?' disabled':''}>${NEWS.loading?tt('Cargando…'):tt('Actualizar')}</button>`:''}</div>
+${NEWS.errs.length?`<div class="mh-note">${tt('No se pudo leer')}: ${esc(NEWS.errs.join(', '))}</div>`:''}
+${L.length?L.map(x=>{const u=safeUrl(x.u);return `<${u?`a href="${esc(u)}" target="_blank" rel="noopener noreferrer"`:'div'} class="mh-er" style="text-decoration:none"><div class="mh-dd">${x.d?`<b>${new Date(x.d).getDate()}</b><small>${new Date(x.d).toLocaleDateString('es-ES',{month:'short'})}</small>`:ic('news')}</div><div class="mh-eb"><b style="white-space:normal">${esc(x.t)}</b><small>${esc(x.s)}</small></div></${u?'a':'div'}>`}).join(''):`<p class="empty">${RSS_SOURCES.length?(NEWS.loading?tt('Cargando…'):tt('No hay novedades todavía.')):''}</p>`}</section></div>`}
+async function checkUpdate(){try{const r=await fetch('version.json?'+Date.now(),{cache:'no-store'});if(!r.ok)return;const j=await r.json();if(j&&j.version&&j.version!==APP_VERSION&&!N.some(n=>n.t=='upd'&&n.v==j.version))addNotif(tt('Actualización disponible'),tt('Hay una versión nueva de HemoAyuda.'),{t:'upd',v:j.version})}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});setTimeout(checkUpdate,2500);setInterval(checkUpdate,30*60*1000);
+document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!el)return;const a=el.dataset.a;
+if(a=='notif'){S.nUnread=N.filter(n=>!n.read).map(n=>n.id);N.forEach(n=>n.read=true);saveN();S.scr='notif';R()}
+else if(a=='nclear'){N=[];saveN();S.nUnread=[];R()}
+else if(a=='doupd'){location.href=location.pathname+'?v='+Date.now()}
+else if(a=='news'){S.scr='news';R();if(RSS_SOURCES.length&&Date.now()-NEWS.ts>30*60*1000)loadNews()}
+else if(a=='newsref'){loadNews()}});
+Object.entries({'Notificaciones':'Notifications','Novedades':'News','sin leer':'unread','Hoy':'Today','Avisos':'Alerts','Actualizaciones, descargas y procesos terminados.':'Updates, downloads and finished processes.','Borrar todo':'Clear all','No tienes notificaciones.':'You have no notifications.','Actualizar ahora':'Update now','Actualizar':'Refresh','Novedades sobre hemofilia':'Haemophilia news','fuentes':'sources','actualizado':'updated','Aún no hay fuentes configuradas. Se añadirán próximamente.':'No sources configured yet. They will be added soon.','Cargando…':'Loading…','No se pudo leer':'Could not read','No hay novedades todavía.':'No news yet.','Actualización disponible':'Update available','Hay una versión nueva de HemoAyuda.':'There is a new version of HemoAyuda.','Archivo descargado':'File downloaded','Datos sincronizados':'Data synced','Tus registros se han cargado desde tu cuenta.':'Your records were loaded from your account.'}).forEach(([k,v])=>{if(!(k in D))D[k]=v});
 function R(){let h;
 if(AUTH_LOADING){document.getElementById('app').innerHTML=loadingScreen();tr(document.getElementById('app'));document.documentElement.lang=LANG;return;}
 if(!AUTHED){document.getElementById('app').innerHTML=authScreen();tr(document.getElementById('app'));document.documentElement.lang=LANG;window.scrollTo(0,0);return;}
 if(S.scr=='quick')h=quick();else if(S.scr=='wiz')h=wiz();else if(S.scr=='sumd')h=summary(S.d,0);else if(S.scr=='priv')h=priv();else if(S.scr=='view')h=summary(E[S.edit],1);
-else if(S.scr=='sosedit')h=sosEdit();else if(S.scr=='medform')h=medForm();else if(S.scr=='userinfo')h=userScreen();else if(S.scr=='config')h=sett();else if(S.scr=='util')h=utilScreen();else h={home,segui,sett:settMenu,sos,med}[S.tab]?{home,segui,sett:settMenu,sos,med}[S.tab]():home();
+else if(S.scr=='sosedit')h=sosEdit();else if(S.scr=='medform')h=medForm();else if(S.scr=='userinfo')h=userScreen();else if(S.scr=='config')h=sett();else if(S.scr=='util')h=utilScreen();else if(S.scr=='notif')h=notifScreen();else if(S.scr=='news')h=newsScreen();else h={home,segui,sett:settMenu,sos,med}[S.tab]?{home,segui,sett:settMenu,sos,med}[S.tab]():home();
 const nav=[['home',ic('home'),'Inicio'],['segui',ic('act'),'Actividad'],['sos',ic('sos'),'SOS'],['sett',ic('user'),navUser()]];
-document.getElementById('app').innerHTML=h+`<nav><div>${(()=>{const b=nav.map(n=>{
+document.getElementById('app').innerHTML=h+topbar()+`<nav><div>${(()=>{const b=nav.map(n=>{
   return `<button class="${n[0]=='sos'?'sosb':''} ${!S.scr&&S.tab==n[0]?'on':''}" data-a="tab" data-v="${n[0]}"><span>${n[1]}</span>${n[2]}</button>`;
 });b.splice(2,0,`<button class="fab" data-a="new" aria-label="Registrar sangrado">${S.tab=='home'&&!S.scr?'<span class="fabhint"><b>Registro rápido</b><span class="chevs"><i>⌄</i><i>⌄</i></span></span>':''}<svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="3" stroke-linecap="round" fill="none"/></svg></button>`);return b.join('')})()}</div></nav>`;tr(document.getElementById('app'));document.documentElement.lang=LANG;window.scrollTo(0,0)}
 
