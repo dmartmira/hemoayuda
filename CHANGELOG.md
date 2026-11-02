@@ -1,4 +1,17 @@
 # Registro de cambios — HemoAyuda
+## Actualización: **02/11/2026** (BETA)
+
+- **Diseño:** estilo translúcido (glassmorphism) en grises, en modo claro u oscuro según el dispositivo.
+- **Inicio:** se quitan «Registro rápido» y las flechas, Utilidades, «Últimos episodios» y «Reportar un error»; solo se muestran los episodios activos si los hay.
+- **Actividad:** estados en un desplegable (Todos, Activo, En evolución) y episodios resueltos en «Archivados».
+- **Configuración:** incluye «Reportar un error».
+- **Registro de sangrado:** se elimina «¿Cuándo te diste cuenta?»; «Otro» permite escribir el motivo; «Centro de salud» con hora de entrada, salida y nombre; aviso al pasar a «Resuelto» (el episodio queda finalizado); evolución a los 15/30/60 min tras guardar; aviso de borrado permanente.
+- **Modo rápido:** tipo, articulación/músculo y lado en desplegables; dolor con caritas.
+- **SOS:** «Añadir datos» solo con sesión iniciada.
+- Se quitan los iconos de notificaciones y noticias de la parte superior.
+
+---
+
 ## Actualización: **07/01/2026**
 
 Resumen de las actualizaciones realizadas sobre la aplicación **HemoAyuda**, organizadas por pestaña. 
