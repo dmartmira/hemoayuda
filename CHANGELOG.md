@@ -1,4 +1,11 @@
 # Registro de cambios — HemoAyuda
+## Actualización: **08/11/2026** (BETA)
+
+- **Seguridad:** el cliente de Supabase se sirve ahora desde el propio sitio con la versión fijada (2.119.0) en lugar de una CDN externa.
+- **Seguridad:** se añade una política de seguridad de contenido (CSP) que limita desde dónde se pueden cargar scripts y a qué servidores se puede conectar la app.
+
+---
+
 ## Actualización: **02/11/2026** (BETA)
 
 - **Diseño:** estilo translúcido (glassmorphism) en grises, en modo claro u oscuro según el dispositivo.
