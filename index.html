@@ -237,7 +237,7 @@ input[type=range]{accent-color:var(--p)}
 .phr{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--b)}.phr img{width:44px;height:44px;border-radius:10px;object-fit:cover}.phi{flex:1;display:flex;flex-direction:column;min-width:0}.phi small{white-space:normal}.cam{flex:none;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--gs);border:1px solid var(--gb);color:var(--brand);cursor:pointer}
 .bodycard{margin:8px 0 12px;padding:12px;border-radius:18px;background:var(--gs);border:1px solid var(--gb);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);box-shadow:var(--gsh)}
 .bseg{display:flex;gap:6px;margin-bottom:6px}.bseg button{flex:1;padding:8px;border-radius:10px;border:1px solid var(--gb);background:transparent;color:var(--t);font-weight:600;cursor:pointer}.bseg button.on{background:var(--p);color:var(--onp);border-color:var(--p)}
-.bpain{margin:10px 2px 4px}.b3{position:relative;width:min(100%,270px);margin:0 auto;aspect-ratio:1.3/1.9;cursor:grab}.b3 canvas{display:block}.b3load{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;opacity:.7}
+.fabx{position:fixed;inset:0;z-index:40}.fabm{position:fixed;left:50%;bottom:104px;transform:translateX(-50%);z-index:41;display:flex;gap:10px;padding:10px;border-radius:22px;background:rgba(255,255,255,.72);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);box-shadow:0 12px 30px rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.6)}@media(prefers-color-scheme:dark){.fabm{background:rgba(40,40,46,.78);border-color:rgba(255,255,255,.12)}}.fabm button{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:116px;padding:14px 10px;border:0;border-radius:16px;background:transparent;color:inherit;font:inherit;font-weight:600;font-size:14px;cursor:pointer}.fabm button span{color:var(--p,#800020)}.fabm button svg{width:26px;height:26px}.hola{font-size:20px;margin:6px 2px 12px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.bpain{margin:10px 2px 4px}.b3{position:relative;width:min(100%,270px);margin:0 auto;aspect-ratio:1.3/1.9;cursor:grab}.b3 canvas{display:block}.b3load{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;opacity:.7}
 .mk{position:absolute;width:30px;height:30px;margin:-15px 0 0 -15px;border:0;background:transparent;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}.mk i{position:absolute;inset:9px;border-radius:50%;background:rgba(255,255,255,.9);border:2px solid rgba(0,0,0,.45);box-shadow:0 0 0 2px rgba(255,255,255,.5);transition:all .2s}.mk.on i{inset:4px;background:#e5232b;border-color:#fff;box-shadow:0 0 0 3px rgba(229,35,43,.35),0 0 14px 4px rgba(229,35,43,.7)}.mk.zone i{border-radius:7px}
 .bodywrap{display:flex;justify-content:center;touch-action:pan-y;user-select:none;-webkit-user-select:none;cursor:grab;perspective:600px}
 #bodyfig{height:340px;width:auto;color:var(--t);overflow:visible;transform-origin:50% 50%;will-change:transform}
@@ -305,7 +305,7 @@ let CLOUD=false,CLOUD_ERR=false;
 function cloudUpEp(d){if(!sb||!CLOUD)return;sb.from('episodes').upsert({id:d.id,status:d.status,date:d.date,data:d}).then(({error})=>{if(error)console.error('sync episode',error)});}
 function cloudDelEp(id){if(!sb||!CLOUD||!id)return;sb.from('episodes').delete().eq('id',id).then(({error})=>{if(error)console.error('delete episode',error)});}
 function cloudUpMed(d){if(!sb||!CLOUD)return;sb.from('medications').upsert({id:d.id,kind:d.kind,date:d.date,data:d}).then(({error})=>{if(error)console.error('sync medication',error)});}
-let UID=null,CURRENT_USER='',LAST_LOGIN='';
+let UID=null,CURRENT_USER='',LAST_LOGIN='',NICKN='';const getNick=m=>{let n=(m&&m.nick)||'';if(!n){try{n=localStorage.getItem('hnk')||''}catch(x){}}return String(n).slice(0,30)};
 function cloudUpSos(p){if(!sb||!CLOUD||!UID)return;sb.from('sos_profile').upsert({user_id:UID,data:p}).then(({error})=>{if(error)console.error('sync sos',error)});}
 const BOOT_HASH=location.hash||'';
 const EMAIL_DOMAIN='@hemoayuda.app';
@@ -341,7 +341,7 @@ async function authInit(){
     const{data:{session}}=await sb.auth.getSession();
     if(session&&/type=(invite|recovery)/.test(BOOT_HASH)){UID=session.user.id;AU.mode='setpw';history.replaceState(null,'',location.pathname);R();return;}
     if(/error_code=|error=/.test(BOOT_HASH)){AUTH_ERR=tt('El enlace ha caducado o no es válido. Solicita uno nuevo.');AU.mode='forgot';history.replaceState(null,'',location.pathname);}
-    if(session){UID=session.user.id;CURRENT_USER=session.user.user_metadata&&session.user.user_metadata.username||session.user.email.split('@')[0];await enterApp();}
+    if(session){UID=session.user.id;CURRENT_USER=session.user.user_metadata&&session.user.user_metadata.username||session.user.email.split('@')[0];NICKN=getNick(session.user.user_metadata);await enterApp();}
   }catch(e){console.error('Supabase init error',e);}
   R();
 }
@@ -377,7 +377,7 @@ async function authSubmit(){
     AUTH_BUSY=true;AUTH_ERR='';R();
     try{
       const r=await sb.auth.updateUser({password:AU.pass});if(r.error)throw r.error;
-      const u=r.data.user;CURRENT_USER=(u.user_metadata&&u.user_metadata.username)||u.email.split('@')[0];
+      const u=r.data.user;CURRENT_USER=(u.user_metadata&&u.user_metadata.username)||u.email.split('@')[0];NICKN=getNick(u.user_metadata);
       AU.pass='';AU.pass2='';AU.mode='login';await enterApp();
     }catch(e){console.error('setpw',e);AUTH_BUSY=false;AUTH_ERR=tt('No se pudo guardar la contraseña. Inténtalo de nuevo.');}
     R();return;
@@ -392,7 +392,7 @@ async function authSubmit(){
       res=await sb.auth.signInWithPassword({email,password:AU.pass});
       if(res.error)throw res.error;
     UID=res.data.session.user.id;
-    CURRENT_USER=(res.data.session.user.user_metadata&&res.data.session.user.user_metadata.username)||u.split('@')[0];
+    CURRENT_USER=(res.data.session.user.user_metadata&&res.data.session.user.user_metadata.username)||u.split('@')[0];NICKN=getNick(res.data.session.user.user_metadata);
     AU.pass='';AU.pass2='';LK={n:0,lvl:0,until:0};lkSave();
     await enterApp();
   }catch(e){console.error('auth error',e);AUTH_BUSY=false;if(/Invalid login credentials/i.test((e&&e.message)||''))authFail(authErrMsg(e));else AUTH_ERR=authErrMsg(e);}
@@ -400,13 +400,13 @@ async function authSubmit(){
 }
 async function authLogout(){
   try{if(sb)await sb.auth.signOut();}catch(e){}
-  AUTHED=false;CLOUD=false;UID=null;CURRENT_USER='';AU.user='';AU.pass='';AU.pass2='';AU.mode='login';
+  AUTHED=false;CLOUD=false;UID=null;CURRENT_USER='';NICKN='';AU.user='';AU.pass='';AU.pass2='';AU.mode='login';
   E=[];M=[];P={};gdReset();
   try{localStorage.removeItem('hm');localStorage.removeItem('hmm');localStorage.removeItem('hmp');}catch(e){}
   S.tab='home';S.scr=null;
   R();
 }
-function userScreen(){return hd(tt('Usuario'),1)+(CURRENT_USER?`<div class="card">${kv(tt('Usuario'),CURRENT_USER)}${kv(tt('ID de usuario'),UID)}${kv(tt('Último inicio de sesión'),LAST_LOGIN)}</div><button class="btn o" data-a="logout">${tt('Cerrar sesión')}</button>`:`<p class="note">${tt('Inicia sesión para ver tu información de usuario.')}</p>`)}
+function userScreen(){return hd(tt('Usuario'),1)+(CURRENT_USER?`<div class="card">${kv(tt('Usuario'),CURRENT_USER)}<label>${tt('Nombre que aparece en la app')}</label><input type="text" maxlength="30" data-nk="1" value="${esc(NICKN)}" placeholder="${tt('Ej. Manuel')}"><button class="btn o" data-a="savenick" type="button">${tt('Guardar nombre')}</button><small id="nkmsg"></small>${kv(tt('ID de usuario'),UID)}${kv(tt('Último inicio de sesión'),LAST_LOGIN)}</div><button class="btn o" data-a="logout">${tt('Cerrar sesión')}</button>`:`<p class="note">${tt('Inicia sesión para ver tu información de usuario.')}</p>`)}
 function utilScreen(){return hd(tt('Utilidades'),1)+`<p class="note">${tt('Próximamente más herramientas útiles por aquí.')}</p>`}
 function loadingScreen(){return `<div class="loadwrap"><img class="lg" src="${LOGO}" alt="HemoAyuda"><div class="spin"></div><p>${tt('Cargando información del usuario…')}</p></div>`}
 ;Object.entries({"Solicitar invitación": "Request an invitation", "El acceso es solo por invitación.": "Access is by invitation only."}).forEach(([k,v])=>{if(!(k in D))D[k]=v});
@@ -522,7 +522,7 @@ function gdCard(){if(!PHOTOS_ON)return '';const pend=pendingPhotos();
   return `<div class="card"><b>Google Drive</b><p class="note">${GD.root?tt('Carpeta')+': <b>'+esc(GD.root.name)+'</b>':tt('Aún no has elegido la carpeta de Drive.')}${pend?'<br>'+pend+' '+tt('fotos pendientes de subir'):''}</p>${GD.msg?`<p class="note" style="color:var(--r)">${esc(GD.msg)}</p>`:''}
 <button class="btn${gdReady()?' o':''}" data-a="gdconnect"${GD.busy?' disabled':''}>${gdReady()?tt('Conectado a Drive'):tt('Conectar Google Drive')}</button>
 ${GD_API_KEY?`<button class="btn o" data-a="gdfolder"${GD.busy?' disabled':''}>${GD.root?tt('Cambiar carpeta'):tt('Elegir carpeta')}</button>`:''}${pend&&GD.root?`<button class="btn o" data-a="gdsync"${GD.busy?' disabled':''}>${tt('Subir fotos pendientes')}</button>`:''}</div>`}
-;Object.entries({"Cargando figura…": "Loading figure…", "Describe el problema": "Describe the problem", "Localización específica (opcional)": "Specific location (optional)", "Fotos de la zona": "Photos of the area", "ID del episodio": "Episode ID", "Foto al registrar": "Photo at registration", "Foto al resolver": "Photo at resolution", "Sin foto": "No photo", "Guardada en Drive": "Saved in Drive", "Pendiente de subir a Drive": "Waiting to upload to Drive", "No se pudo subir a Drive. Se reintentará.": "Could not upload to Drive. It will be retried.", "Conectado. Elige ahora la carpeta de Drive.": "Connected. Now choose the Drive folder.", "No se pudo conectar con Google.": "Could not connect to Google.", "No se pudo abrir el selector de carpetas.": "Could not open the folder picker.", "Las fotos se guardan en el dispositivo hasta que Google Drive esté configurado.": "Photos stay on the device until Google Drive is set up.", "pendientes": "pending", "Carpeta": "Folder", "Aún no has elegido la carpeta de Drive.": "You have not chosen the Drive folder yet.", "fotos pendientes de subir": "photos waiting to upload", "Conectado a Drive": "Connected to Drive", "Conectar Google Drive": "Connect Google Drive", "Cambiar carpeta": "Change folder", "Elegir carpeta": "Choose folder", "Subir fotos pendientes": "Upload pending photos"}).forEach(([k,v])=>{if(!(k in D))D[k]=v});
+;Object.entries({"Cargando figura…": "Loading figure…", "Hola": "Hello", "¿dónde se ha producido el sangrado?": "where did the bleed happen?", "Nombre que aparece en la app": "Name shown in the app", "Ej. Manuel": "E.g. Manuel", "Guardar nombre": "Save name", "Guardado": "Saved", "Fecha de inicio": "Start date", "Hora de inicio": "Start time", "Describe el problema": "Describe the problem", "Localización específica (opcional)": "Specific location (optional)", "Fotos de la zona": "Photos of the area", "ID del episodio": "Episode ID", "Foto al registrar": "Photo at registration", "Foto al resolver": "Photo at resolution", "Sin foto": "No photo", "Guardada en Drive": "Saved in Drive", "Pendiente de subir a Drive": "Waiting to upload to Drive", "No se pudo subir a Drive. Se reintentará.": "Could not upload to Drive. It will be retried.", "Conectado. Elige ahora la carpeta de Drive.": "Connected. Now choose the Drive folder.", "No se pudo conectar con Google.": "Could not connect to Google.", "No se pudo abrir el selector de carpetas.": "Could not open the folder picker.", "Las fotos se guardan en el dispositivo hasta que Google Drive esté configurado.": "Photos stay on the device until Google Drive is set up.", "pendientes": "pending", "Carpeta": "Folder", "Aún no has elegido la carpeta de Drive.": "You have not chosen the Drive folder yet.", "fotos pendientes de subir": "photos waiting to upload", "Conectado a Drive": "Connected to Drive", "Conectar Google Drive": "Connect Google Drive", "Cambiar carpeta": "Change folder", "Elegir carpeta": "Choose folder", "Subir fotos pendientes": "Upload pending photos"}).forEach(([k,v])=>{if(!(k in D))D[k]=v});
 /* ===== Figura humana 3D (giro 360º) para elegir la zona afectada ===== */
 const BD={ang:0,drag:null,moved:false,raf:0};
 const BJ=[['Hombro',56,106],['Codo',49,163],['Muñeca',33,238],['Cadera',80,226],['Rodilla',81,308],['Tobillo',77,392]];
@@ -540,7 +540,7 @@ const B3MK={j:[['Hombro',.23,1.40,0],['Codo',.31,1.16,0],['Muñeca',.41,.96,0],[
 function b3html(d,muscle){const mk=[];(muscle?B3MK.m:B3MK.j).forEach(z=>['D','I'].forEach(sd=>{const on=d.loc==z[0]&&d.side==sd;mk.push(`<button type="button" class="mk${on?' on':''}" data-a="bodypick" data-kind="${muscle?'m':'j'}" data-loc="${z[0]}" data-side="${sd}" data-x="${sd=='D'?-z[1]:z[1]}" data-y="${z[2]}" data-z="${z[3]}" aria-label="${tt(z[0])} ${sd=='D'?tt('derecho'):tt('izquierdo')}"><i></i></button>`)}));
  B3MK.z.forEach(z=>mk.push(`<button type="button" class="mk zone${d.type==z[0]?' on':''}" data-front="1" data-a="bodypick" data-kind="z" data-loc="${z[0]}" data-x="${z[1]}" data-y="${z[2]}" data-z="${z[3]}" aria-label="${tt(z[0])}"><i></i></button>`));
  return `<div class="bodywrap b3" id="b3host">${B3.st=='ready'?'':`<div class="b3load">${tt('Cargando figura…')}</div>`}${mk.join('')}</div>`}
-function bodyFig(d){const muscle=d.type=='Músculo',face=bodyFace(),c=Math.cos(BD.ang*Math.PI/180);if(B3.st=='idle')b3load();const use3=B3.st=='ready'||B3.st=='loading';
+function bodyFig(d,ex=''){const muscle=d.type=='Músculo',face=bodyFace(),c=Math.cos(BD.ang*Math.PI/180);if(B3.st=='idle')b3load();const use3=B3.st=='ready'||B3.st=='loading';
   const selSide=(vx)=>face=='front'?(vx=='L'?'D':'I'):(vx=='L'?'I':'D');
   const HP="M100 6C86 6 77 18 77 36C77 48 81 58 87 64C90 67 93 69 94 72L94 80C94 84 84 86 76 88C64 91 54 95 49 106C45 117 44 134 42 150C40 164 37 184 33 204C31 216 28 228 26 238C22 248 19 258 22 266C25 272 31 270 33 262C35 254 38 246 40 238C42 226 46 210 49 194C52 180 54 166 56 152C58 138 60 124 64 114C66 132 69 150 69 172C69 186 66 198 66 212C66 222 64 236 65 256C66 276 70 292 70 308C70 328 67 348 66 366C65 380 66 392 64 400C62 406 54 408 52 414C54 419 84 419 88 414C90 408 90 400 90 392C90 372 92 348 93 326C94 312 94 300 94 290C95 272 98 252 100 238";
   const both=(f)=>f(false)+f(true);
@@ -566,7 +566,7 @@ ${hh('hp').replace(/<use /g,'<use class="bfl" ')}<use href="#hp" class="bst"/><u
 ${use3?b3html(d,muscle):`<div class="bodywrap"><svg id="bodyfig" viewBox="0 0 200 420" data-face="${face}" style="transform:scaleX(${Math.max(.03,Math.abs(c)).toFixed(3)})" aria-label="${tt('Figura del cuerpo')}">${body}${head}${mouth}${abdo}${mus}${jts}</svg></div>`}
 <div class="bctl"><button class="btn o" data-a="bodyspin" type="button">↻ ${tt('Girar')}</button><span><small id="bodyface">${tt(face=='front'?'Vista frontal':'Vista dorsal')}</small><br><span class="blab">${lab}</span></span></div><small class="bhint">${tt('Arrastra la figura para girarla 360º')}</small>
 <div class="bpain"><div class="rl"><span>${tt('Dolor actual')}</span><b id="o_pain">${d.pain<1?1:d.pain}/10</b></div><input type="range" min="1" max="10" data-k="pain" value="${d.pain<1?1:d.pain}" aria-label="${tt('Dolor actual')}"><div class="rl"><small>1 · ${tt('Muy poco')}</small><small>10 · ${tt('Muy fuerte')}</small></div></div>
-<div class="chs bchips">${['Otro'].map(t=>`<button class="ch${d.type==t?' on':''}" data-a="set" data-k="type" data-v="${t}">${tt(t)}</button>`).join('')}</div></div>`}
+<div class="chs bchips">${['Otro'].map(t=>`<button class="ch${d.type==t?' on':''}" data-a="set" data-k="type" data-v="${t}">${tt(t)}</button>`).join('')}</div>${ex}</div>`}
 document.addEventListener('pointerdown',e=>{const w=e.target.closest&&e.target.closest('.bodywrap');if(!w)return;cancelAnimationFrame(BD.raf);BD.drag={x:e.clientX,a:BD.ang};BD.moved=false});
 document.addEventListener('pointermove',e=>{if(!BD.drag)return;const dx=e.clientX-BD.drag.x;if(Math.abs(dx)>6)BD.moved=true;if(BD.moved){BD.ang=BD.drag.a+dx*1.1;bodyApply()}});
 const bodyUp=()=>{if(!BD.drag)return;const mv=BD.moved;BD.drag=null;if(mv){const t=Math.round(BD.ang/180)*180;bodySpin(t-BD.ang,350);setTimeout(()=>{BD.moved=false},120)}};
@@ -597,7 +597,8 @@ const FACES=[['😄','Muy poco'],['🙂','Poco'],['😐','Moderado'],['😟','Fu
 ;Object.entries({"Selecciona…": "Select…", "Muy poco": "Very little", "Poco": "A little", "Moderado": "Moderate", "Fuerte": "Strong", "Muy fuerte": "Very strong"}).forEach(([k,v])=>{if(!(k in D))D[k]=v});
 ;D['Inicia sesión para añadir o editar tus datos de emergencia.']='Log in to add or edit your emergency data.';
 function quick(){const d=S.d;return hd('Registrar sangrado',1)+quickForm(d)}
-function quickForm(d){return `<h3>${tt('¿Dónde se produce?')}</h3>${bodyFig(d)}${d.type=='Otro'?`<label>${tt('Describe el problema')}</label>${inp('typeX','text','Escríbelo aquí')}`:''}<label>${tt('Localización específica (opcional)')}</label>${inp('locx','text','Ej. parte trasera de la rodilla…')}<h3>${tt('¿Por qué ocurrió?')}</h3><select data-k="cause">${['Espontáneo','Después de un golpe','Después de ejercicio/actividad física','Otro'].map(c=>`<option value="${c}"${d.cause==c?' selected':''}>${tt(c)}</option>`).join('')}</select>${d.cause=='Otro'?`<label>${tt('Indica cómo comenzó')}</label>${inp('causeX','text','Escríbelo aquí')}`:''}${photoCard(d,['inicio'])}<button class="btn red" data-a="saveq">${tt('Registrar ahora')}</button><button class="btn link" data-a="full">${tt('Prefiero el formulario completo')}</button>`}
+function quickForm(d){const nm=(NICKN||CURRENT_USER||'').trim();const ex=`${d.type=='Otro'?`<label>${tt('Describe el problema')}</label>${inp('typeX','text','Escríbelo aquí')}`:''}<label>${tt('Localización específica (opcional)')}</label>${inp('locx','text','Ej. parte trasera de la rodilla…')}<div class="grid2"><div><label>${tt('Fecha de inicio')}</label>${inp('date','date')}</div><div><label>${tt('Hora de inicio')}</label>${inp('time','time')}</div></div><label>${tt('¿Por qué ocurrió?')}</label><select data-k="cause">${['Espontáneo','Después de un golpe','Después de ejercicio/actividad física','Otro'].map(c=>`<option value="${c}"${d.cause==c?' selected':''}>${tt(c)}</option>`).join('')}</select>${d.cause=='Otro'?`<label>${tt('Indica cómo comenzó')}</label>${inp('causeX','text','Escríbelo aquí')}`:''}`;
+return `<h2 class="hola">${tt('Hola')}${nm?' '+esc(nm):''}, ${tt('¿dónde se ha producido el sangrado?')}</h2>${bodyFig(d,ex)}${photoCard(d,['inicio'])}<button class="btn red" data-a="saveq">${tt('Registrar ahora')}</button><button class="btn link" data-a="full">${tt('Prefiero el formulario completo')}</button>`}
 
 const cnt=s=>E.filter(d=>d.status==s).length;
 const ICN={"home": "<path d=\"M3 11l9-8 9 8\"/><path d=\"M5 10v10h14V10\"/>", "act": "<path d=\"M3 12h4l3-8 4 16 3-8h4\"/>", "sos": "<circle cx=\"12\" cy=\"12\" r=\"9\"/><circle cx=\"12\" cy=\"12\" r=\"3.5\"/><path d=\"M5.6 5.6l3.9 3.9M14.5 14.5l3.9 3.9M18.4 5.6l-3.9 3.9M9.5 14.5l-3.9 3.9\"/>", "user": "<circle cx=\"12\" cy=\"8\" r=\"4\"/><path d=\"M4 21c0-4 4-6 8-6s8 2 8 6\"/>", "cfg": "<path d=\"M4 6h8M18 6h2M4 12h2M12 12h8M4 18h10M20 18h0\"/><circle cx=\"15\" cy=\"6\" r=\"2.2\"/><circle cx=\"9\" cy=\"12\" r=\"2.2\"/><circle cx=\"17\" cy=\"18\" r=\"2.2\"/>", "lock": "<rect x=\"5\" y=\"11\" width=\"14\" height=\"10\" rx=\"2\"/><path d=\"M8 11V8a4 4 0 0 1 8 0v3\"/>", "out": "<path d=\"M9 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h4\"/><path d=\"M16 8l4 4-4 4M20 12H9\"/>", "drop": "<path d=\"M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z\"/>", "pill": "<rect x=\"3\" y=\"8\" width=\"18\" height=\"8\" rx=\"4\" transform=\"rotate(-45 12 12)\"/><path d=\"M9 9l6 6\"/>", "tools": "<rect x=\"3\" y=\"7\" width=\"18\" height=\"13\" rx=\"2\"/><path d=\"M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 13h18\"/>", "alert": "<path d=\"M12 3L2.5 20h19L12 3z\"/><path d=\"M12 10v4.5M12 17.5h.01\"/>", "bell": "<path d=\"M6 9a6 6 0 0 1 12 0c0 6 2 7.5 2 7.5H4S6 15 6 9z\"/><path d=\"M10 20a2 2 0 0 0 4 0\"/>", "news": "<rect x=\"3\" y=\"4\" width=\"14\" height=\"16\" rx=\"2\"/><path d=\"M17 9h3a1 1 0 0 1 1 1v8a2 2 0 0 1-2 2M7 8h6M7 12h6M7 16h4\"/>", "refresh": "<path d=\"M20 12a8 8 0 1 1-2.5-5.8\"/><path d=\"M20 4v4h-4\"/>", "down": "<path d=\"M12 4v11M7 11l5 5 5-5M5 20h14\"/>", "check": "<path d=\"M5 12.5l4.5 4.5L19 7\"/>"};const ic=(n,c)=>`<svg class="i${c?' '+c:''}" viewBox="0 0 24 24" aria-hidden="true">${ICN[n]}</svg>`;
@@ -612,7 +613,7 @@ return `<div class="mh" style="margin-top:14px"><section class="mh-card"><div cl
 ;Object.entries({'Versión en pruebas (BETA). Cambios del último día.':'Beta version. Changes from the latest day.'}).forEach(([k,v])=>{if(!(k in D))D[k]=v});
 ;Object.entries({"Novedades de la versión": "What's new", "Evolución del sangrado: anótala a los 15, 30 o 60 min una vez registrado": "Bleed progress: log it at 15, 30 or 60 min once registered", "Aviso de borrado permanente al eliminar": "Permanent-deletion warning when deleting", "Modo rápido: elige la articulación o el músculo afectado y el lado": "Quick mode: choose the affected joint or muscle and side", "Registro de sangrado: «Otro» permite escribir el motivo": "Bleed registration: \"Other\" lets you type the reason", "Centro de salud con hora de entrada, salida y nombre": "Health centre with entry time, exit time and name", "Aviso al pasar a «Resuelto»: el episodio queda finalizado": "Warning when set to \"Resolved\": the episode is finalised"}).forEach(([k,v])=>{if(!(k in D))D[k]=v});
 ;Object.entries({"Nuevo diseño translúcido (glassmorphism) en claro u oscuro según tu dispositivo": "New translucent (glassmorphism) design, light or dark following your device", "Inicio más limpio: solo se muestran los episodios activos": "Cleaner home: only active episodes are shown", "Actividad: estados en un desplegable y episodios resueltos en «Archivados»": "Activity: statuses in a dropdown and resolved episodes under \"Archived\"", "«Reportar un error» ahora está en Configuración": "\"Report a bug\" is now in Settings"}).forEach(([k,v])=>{if(!(k in D))D[k]=v});
-function home(){if(!S.hd)S.hd=newD();S.d=S.hd;return `<div class="hdr"><img class="lg" src="${LOGO}" alt="HemoAyuda"></div><div class="fcg">${MENU.map(m=>`<button class="fc${m[0]=='sos'?' fcr':''}" data-a="${m[0]=='new'?'new':(m[0]=='priv'?'priv':(m[0]=='wiz'?'newwiz':(m[0]=='util'?'utilgo':'tab')))}" data-v="${m[0]}"><span>${m[1]}</span>${m[2]}</button>`).join('')}</div>${quickForm(S.hd)}${(()=>{const A=E.map((d,i)=>[d,i]).filter(x=>x[0].status!='Resuelto');return A.length?`<div class="card">${A.slice(0,5).map(x=>epRow(x[0],x[1])).join('')}</div>`:''})()}`}
+function home(){if(!S.hd)S.hd=newD();S.d=S.hd;return `${quickForm(S.hd)}${(()=>{const A=E.map((d,i)=>[d,i]).filter(x=>x[0].status!='Resuelto');return A.length?`<div class="card">${A.slice(0,5).map(x=>epRow(x[0],x[1])).join('')}</div>`:''})()}`}
 
 const PAL=['#800020','#d45060','#d97706','#16a34a','#7c3aed','#0891b2','#db2777','#65a30d'];
 const LOCI={'Rodilla':'🦵','Tobillo':'🦶','Codo':'💪','Cadera':'🦴','Hombro':'🙆','Muñeca':'✋','Músculo':'💪','Piel / tejido':'🩹','Nariz / boca':'👃','Orina / heces':'💧','Cabeza':'🧠','Abdomen':'⭕','Otro':'…','Articulación':'🦴'};
@@ -813,9 +814,9 @@ ${d.kind=='Profilaxis'?`<h3>${tt('¿Dónde se ha colocado?')}</h3><p class="note
 <label>${tt('Nombre del fármaco')}</label><input type="text" data-m="product" value="${esc(d.product)}" placeholder="${tt('Ej. nombre comercial')}"><h3>${tt('Viales')}</h3><p class="note">${tt('Si la dosis necesita más de un vial (por ejemplo 30 mg + 12 mg = 42 mg), añade cada uno.')}</p><label>${tt('¿Cuántos viales se han usado?')}</label><div class="row">${[1,2,3,4].map(n=>`<button class="ch${d.vials.length==n?' on':''}" data-a="vn" data-v="${n}">${n}${n==1?' · '+tt('solo uno'):''}</button>`).join('')}</div><div class="row"><div><label>${tt('Unidad')}</label><select data-m="unit"><option${d.unit=='UI'?' selected':''}>UI</option><option${d.unit=='mg'?' selected':''}>mg</option><option${d.unit=='ml'?' selected':''}>ml</option></select></div></div>${d.vials.map((v,i)=>`<div class="mh-vial"><div class="row"><div><label>${tt('Vial')} ${i+1} · ${tt('Dosis')}</label><input type="number" inputmode="decimal" data-vl="${i}.dose" value="${esc(v.dose)}"></div><div><label>${tt('Lote')}</label><input type="text" data-vl="${i}.lot" value="${esc(v.lot)}" placeholder="${tt('Ej. número de lote')}"></div></div>${d.vials.length>1?`<button class="mh-vdel" data-a="vdel" data-i="${i}">${tt('Quitar vial')} ${i+1}</button>`:''}</div>`).join('')}<button class="btn o" data-a="vadd">+ ${tt('Añadir otro vial')}</button><div class="mh-vtot" id="vtot">${vSummary(d)}</div>
 <label>${tt('Notas')}</label><textarea rows="2" data-m="notes" placeholder="${tt('En caso de reacción u otro síntoma, indícalo aquí')}">${esc(d.notes)}</textarea>
 <button class="btn" data-a="mdsave">${tt('Guardar')}</button>`}
-function navUser(){const u=(CURRENT_USER||(P.name||'').trim().split(/\s+/)[0]||'').trim();if(!u)return 'Perfil';return esc(u.length>8?u.slice(0,7)+'…':u)}
+function navUser(){const u=(NICKN||CURRENT_USER||(P.name||'').trim().split(/\s+/)[0]||'').trim();if(!u)return 'Perfil';return esc(u.length>8?u.slice(0,7)+'…':u)}
 /* ===== Notificaciones y novedades (RSS) ===== */
-const APP_VERSION='v19';
+const APP_VERSION='v20';
 /* Fuentes RSS: se rellenarán más adelante. Formato: {name:'Nombre',url:'https://…/feed.xml'}
    Si una web no permite leer su feed desde el navegador (CORS), pon en RSS_PROXY la dirección de un proxy propio
    que acepte la URL codificada al final, p. ej. 'https://mi-proxy.example/?url='. */
@@ -859,17 +860,19 @@ if(!AUTHED){document.getElementById('app').innerHTML=authScreen();tr(document.ge
 if(S.scr=='quick')h=quick();else if(S.scr=='wiz')h=wiz();else if(S.scr=='sumd')h=summary(S.d,0);else if(S.scr=='priv')h=priv();else if(S.scr=='view')h=summary(E[S.edit],1);
 else if(S.scr=='sosedit')h=sosEdit();else if(S.scr=='medform')h=medForm();else if(S.scr=='userinfo')h=userScreen();else if(S.scr=='config')h=sett();else if(S.scr=='util')h=utilScreen();else if(S.scr=='notif')h=notifScreen();else if(S.scr=='news')h=newsScreen();else h={home,segui,sett:settMenu,sos,med}[S.tab]?{home,segui,sett:settMenu,sos,med}[S.tab]():home();
 const nav=[['home',ic('home'),'Inicio'],['segui',ic('act'),'Actividad'],['sos',ic('sos'),'SOS'],['sett',ic('user'),navUser()]];
-document.getElementById('app').innerHTML=h+modal()+`<nav><div>${(()=>{const b=nav.map(n=>{
+document.getElementById('app').innerHTML=h+modal()+(S.fab?`<div class="fabx" data-a="fabx"></div><div class="fabm"><button data-a="newwiz"><span>${ic('drop')}</span>${tt('Nuevo sangrado')}</button><button data-a="tab" data-v="med"><span>${ic('pill')}</span>${tt('Medicación')}</button></div>`:'')+`<nav><div>${(()=>{const b=nav.map(n=>{
   return `<button class="${n[0]=='sos'?'sosb':''} ${!S.scr&&S.tab==n[0]?'on':''}" data-a="tab" data-v="${n[0]}"><span>${n[1]}</span>${n[2]}</button>`;
 });b.splice(2,0,`<button class="fab" data-a="new" aria-label="Registrar sangrado"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="3" stroke-linecap="round" fill="none"/></svg></button>`);return b.join('')})()}</div></nav>`;tr(document.getElementById('app'));document.documentElement.lang=LANG;window.scrollTo(0,KEEPY==null?0:KEEPY);KEEPY=null;b3sync()}
 
 document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!el)return;const a=el.dataset.a,k=el.dataset.k,v=el.dataset.v,d=S.d;
 if(a!='del'&&a!='clr')S.del=false;
+if(a!='new')S.fab=false;
 if(a=='navgo'){if(v=='config'){S.scr='config'}else if(v=='user'){S.scr='userinfo'}else{S.scr='priv'}R();return}
 if(a=='utilgo'){S.scr='util';R();return}
 if(a=='authmode'){AU.mode=v;AUTH_ERR='';AU.sent=false;R();return}
 if(a=='authsubmit'){authSubmit();return}
 if(a=='logout'){authLogout();return}
+if(a=='savenick'){const v=(S.nk!=null?S.nk:NICKN).trim().slice(0,30);NICKN=v;S.nk=null;try{localStorage.setItem('hnk',v)}catch(x){}const m=document.getElementById('nkmsg');if(m)m.textContent=tt('Guardado');if(sb&&CLOUD)sb.auth.updateUser({data:{nick:v}}).then(({error})=>{if(error)console.error('nick',error)});return}
 if(a=='sosedit'){if(AUTH_ENABLED&&!UID)return;S.pd=Object.assign({},P);S.scr='sosedit'}
 else if(a=='psave'){P=S.pd;try{localStorage.setItem('hmp',JSON.stringify(P))}catch(x){}cloudUpSos(P);S.scr='sos'}
 else if(a=='tab'){S.tab=v;S.scr=null}
@@ -895,7 +898,8 @@ else if(a=='mcancel'){S.modal=null}
 else if(a=='mok'){const m=S.modal;S.modal=null;if(m&&m.kind=='del'){const rm=E.splice(S.edit,1)[0];save();cloudDelEp(rm&&rm.id);S.scr=null}else if(m&&m.kind=='clr'){E=[];save()}else if(m&&m.kind=='wiz'){S.d.status='Resuelto'}else if(m&&m.kind=='stat'){const e=E[S.edit];e.status='Resuelto';e.locked=true;save();cloudUpEp(e)}}
 else if(a=='set'){if(k=='flt')S.flt=v;else{d[k]=v;if(k=='type'){d.loc='';d.side=''}}}
 else if(a=='tog'){const i=d[k].indexOf(v);i<0?d[k].push(v):d[k].splice(i,1)}
-else if(a=='new'){S.hd=newD();S.d=S.hd;S.edit=null;S.scr=null;S.tab='home';BD.ang=0;setTimeout(()=>bodySpin(360,1700),250)}
+else if(a=='new'){S.fab=!S.fab}
+else if(a=='fabx'){}
 else if(a=='bodyspin'){bodySpin(180,700);return}
 else if(a=='bodypick'){if(BD.moved)return;const f=document.getElementById('bodyfig'),face=f?f.dataset.face:'front',vx=el.dataset.vx;if(el.dataset.kind=='z'){d.type=el.dataset.loc;d.loc='';d.side=''}else{d.type=el.dataset.kind=='m'?'Músculo':'Articulación';d.loc=el.dataset.loc;d.side=el.dataset.side||(face=='front'?(vx=='L'?'D':'I'):(vx=='L'?'I':'D'))}KEEPY=window.scrollY}
 else if(a=='newwiz'){S.d=newD();S.edit=null;S.step=0;S.scr='wiz'}
@@ -922,6 +926,7 @@ else if(a=='expmedf'){exportMedCsv(mhView().map(x=>x[0]));return}
 R()});
 document.addEventListener('change',e=>{const t=e.target;if(t.classList&&t.classList.contains('langsel')){LANG=t.value;try{localStorage.setItem('hml',LANG)}catch(x){}R()}});
 document.addEventListener('input',e=>{const t=e.target,d=S.d;
+if(t.dataset.nk){S.nk=t.value;return}
 if(t.dataset.hf){S.flt=t.value;R();return}
 if(t.dataset.vl){const[i,f]=t.dataset.vl.split('.');S.md.vials[+i][f]=t.value;const e2=document.getElementById('vtot');if(e2)e2.textContent=vSummary(S.md);return}
 if(t.dataset.m){S.md[t.dataset.m]=t.value;return}

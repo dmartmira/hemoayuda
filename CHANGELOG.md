@@ -1,6 +1,8 @@
 # Registro de cambios — HemoAyuda
 ## Actualización: **08/11/2026** (BETA)
 
+- **Inicio:** saludo «Hola [nombre], ¿dónde se ha producido el sangrado?»; fecha, hora de inicio y motivo dentro del recuadro de la figura; se quitan el logo y los accesos de Nuevo sangrado y Medicación, que ahora salen al pulsar el botón «+».
+- **Usuario:** nuevo campo para elegir el nombre que aparece en la app (distinto del usuario de acceso).
 - **Inicio:** el registro rápido está ahora en la pantalla principal, con la figura 3D, la barra de dolor (1-10) dentro de la figura, «Otro» con descripción y el motivo en desplegable. Se elimina la sección de novedades de la ventana principal.
 - **Registro rápido:** nueva figura humana 3D realista (modelo muscular) que se puede girar 360º (frontal/dorsal) arrastrando o con el botón «Girar»; se toca la articulación, músculo o zona afectada y se marca en rojo. Si el dispositivo no admite 3D se usa la figura anterior.
 - **Seguridad:** el cliente de Supabase se sirve ahora desde el propio sitio con la versión fijada (2.119.0) en lugar de una CDN externa.
