@@ -4,6 +4,8 @@
 - **Seguridad:** el cliente de Supabase se sirve ahora desde el propio sitio con la versión fijada (2.119.0) en lugar de una CDN externa.
 - **Seguridad:** se añade una política de seguridad de contenido (CSP) que limita desde dónde se pueden cargar scripts y a qué servidores se puede conectar la app.
 
+- **Seguridad:** al crear una cuenta, la contraseña debe tener al menos 10 caracteres.
+
 ---
 
 ## Actualización: **02/11/2026** (BETA)

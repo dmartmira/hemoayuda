@@ -318,10 +318,11 @@ async function authInit(){
   }catch(e){console.error('Supabase init error',e);}
   R();
 }
+;D['La contraseña debe tener al menos 10 caracteres.']='Password must be at least 10 characters.';
 function authErrMsg(e){const m=(e&&e.message)||'';
   if(/Invalid login credentials/i.test(m))return tt('Usuario o contraseña incorrectos.');
   if(/already registered|already exists/i.test(m))return tt('Ese nombre de usuario ya está en uso.');
-  if(/Password should be at least/i.test(m))return tt('La contraseña debe tener al menos 6 caracteres.');
+  if(/Password should be at least/i.test(m))return tt('La contraseña debe tener al menos 10 caracteres.');
   return tt('Ha ocurrido un error. Inténtalo de nuevo.');
 }
 async function authSubmit(){
@@ -329,7 +330,7 @@ async function authSubmit(){
   if(!sb){AUTH_FATAL=true;R();return;}
   const u=AU.user.trim();
   if(u.length<3){AUTH_ERR=tt('El usuario debe tener al menos 3 caracteres.');R();return;}
-  if(AU.pass.length<6){AUTH_ERR=tt('La contraseña debe tener al menos 6 caracteres.');R();return;}
+  if(AU.pass.length<(AU.mode=='register'?10:6)){AUTH_ERR=tt(AU.mode=='register'?'La contraseña debe tener al menos 10 caracteres.':'La contraseña debe tener al menos 6 caracteres.');R();return;}
   if(AU.mode=='register'&&AU.pass!==AU.pass2){AUTH_ERR=tt('Las contraseñas no coinciden.');R();return;}
   AUTH_BUSY=true;AUTH_ERR='';R();
   const email=emailFor(u);
@@ -651,7 +652,7 @@ ${d.kind=='Profilaxis'?`<h3>${tt('¿Dónde se ha colocado?')}</h3><p class="note
 <button class="btn" data-a="mdsave">${tt('Guardar')}</button>`}
 function navUser(){const u=(CURRENT_USER||(P.name||'').trim().split(/\s+/)[0]||'').trim();if(!u)return 'Perfil';return esc(u.length>8?u.slice(0,7)+'…':u)}
 /* ===== Notificaciones y novedades (RSS) ===== */
-const APP_VERSION='v9';
+const APP_VERSION='v10';
 /* Fuentes RSS: se rellenarán más adelante. Formato: {name:'Nombre',url:'https://…/feed.xml'}
    Si una web no permite leer su feed desde el navegador (CORS), pon en RSS_PROXY la dirección de un proxy propio
    que acepte la URL codificada al final, p. ej. 'https://mi-proxy.example/?url='. */
