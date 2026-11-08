@@ -1,6 +1,7 @@
 # Registro de cambios — HemoAyuda
 ## Actualización: **08/11/2026** (BETA)
 
+- **Inicio:** fecha y hora alineadas, se quita «Localización específica» y el botón del formulario completo, el menú del «+» separa claramente sus dos opciones y la barra inferior ya no deja ver el contenido por debajo.
 - **Inicio:** saludo «Hola [nombre], ¿dónde se ha producido el sangrado?»; fecha, hora de inicio y motivo dentro del recuadro de la figura; se quitan el logo y los accesos de Nuevo sangrado y Medicación, que ahora salen al pulsar el botón «+».
 - **Usuario:** nuevo campo para elegir el nombre que aparece en la app (distinto del usuario de acceso).
 - **Inicio:** el registro rápido está ahora en la pantalla principal, con la figura 3D, la barra de dolor (1-10) dentro de la figura, «Otro» con descripción y el motivo en desplegable. Se elimina la sección de novedades de la ventana principal.
