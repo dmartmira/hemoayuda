@@ -10,6 +10,8 @@
 
 - **Acceso:** entrada con correo o usuario, recuperación de contraseña por correo y pantalla para elegir contraseña al aceptar una invitación.
 
+- **Acceso:** mensaje único «Los datos introducidos no son correctos» y bloqueo temporal tras 3 intentos fallidos (5 min, y se duplica con cada nuevo fallo).
+
 ---
 
 ## Actualización: **02/11/2026** (BETA)
