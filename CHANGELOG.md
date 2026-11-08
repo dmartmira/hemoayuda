@@ -14,7 +14,7 @@
 
 - **ID de episodio** único (HA-XXXXXXXX) visible en el resumen y en el CSV. La función de fotos y subida a Google Drive está preparada pero desactivada por ahora. (Descripción prevista: botón de cámara al registrar el sangrado (modo rápido y formulario completo) y al resolverlo; cada episodio tiene un ID único (HA-XXXXXXXX) y las fotos se nombran `ID_inicio` e `ID_resuelto`. Subida a Google Drive en la carpeta elegida, dentro de una subcarpeta «Mes Año» (requiere configurar Google Cloud).)
 
-- **Registro rápido:** figura humana que da una vuelta 360º al abrir y se gira arrastrando (vista frontal y dorsal); se toca la articulación o el músculo afectado y se marca en rojo, con el lado correcto según la vista.
+- **Registro rápido:** figura humana realista y neutra, sin desplegables (cabeza, abdomen, articulaciones y músculos se eligen en la figura; el resto con botones), que da una vuelta 360º al abrir y se gira arrastrando (vista frontal y dorsal); se toca la articulación o el músculo afectado y se marca en rojo, con el lado correcto según la vista.
 
 ---
 

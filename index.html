@@ -238,14 +238,18 @@ input[type=range]{accent-color:var(--p)}
 .bseg{display:flex;gap:6px;margin-bottom:6px}.bseg button{flex:1;padding:8px;border-radius:10px;border:1px solid var(--gb);background:transparent;color:var(--t);font-weight:600;cursor:pointer}.bseg button.on{background:var(--p);color:var(--onp);border-color:var(--p)}
 .bodywrap{display:flex;justify-content:center;touch-action:pan-y;user-select:none;-webkit-user-select:none;cursor:grab;perspective:600px}
 #bodyfig{height:340px;width:auto;color:var(--t);overflow:visible;transform-origin:50% 50%;will-change:transform}
-#bodyfig .bf{fill:currentColor;fill-opacity:.10;stroke:currentColor;stroke-opacity:.32;stroke-width:1.5}
-#bodyfig .bl{fill:none;stroke:currentColor;stroke-opacity:.10}
-#bodyfig .bd{stroke:currentColor;stroke-opacity:.25;stroke-width:1.5;stroke-dasharray:3 4}
+#bodyfig .bfl{fill:url(#bgr);stroke:none}
+#bodyfig .bst{fill:none;stroke:currentColor;stroke-opacity:.38;stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round}
+#bodyfig .bdt{fill:none;stroke:currentColor;stroke-opacity:.22;stroke-width:1.2;stroke-linecap:round}
+#bodyfig .bdt .bdc{fill:currentColor;fill-opacity:.25;stroke:none}
+#bodyfig .zn{fill:rgba(212,80,96,.06);stroke:rgba(212,80,96,.35);stroke-width:1.5;stroke-dasharray:3 3}
+#bodyfig .zn.on{fill:rgba(217,48,79,.55);stroke:#d9304f;stroke-dasharray:none}
+.bchips{margin-top:8px}
 #bodyfig[data-face=front] .bk,#bodyfig[data-face=back] .fr{display:none}
 #bodyfig .hs{cursor:pointer}
-#bodyfig .jt{fill:rgba(212,80,96,.18);stroke:#d45060;stroke-width:2;transition:r .15s}
+#bodyfig .jt{fill:rgba(212,80,96,.28);stroke:#d45060;stroke-width:1.6;transition:r .15s}
 #bodyfig .jt.on{fill:#d9304f;stroke:#fff;stroke-width:2.5;animation:bpulse 1.4s ease-in-out infinite}
-#bodyfig .mz{fill:none;stroke:rgba(212,80,96,.22)}#bodyfig .mz.on{stroke:rgba(217,48,79,.8)}
+#bodyfig .mz{fill:none;stroke:rgba(212,80,96,.16)}#bodyfig .mz.on{stroke:rgba(217,48,79,.8)}
 @keyframes bpulse{50%{filter:drop-shadow(0 0 6px rgba(217,48,79,.9))}}
 .bctl{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:6px}.bctl .btn{width:auto;margin:0;padding:10px 16px}.bctl>span{text-align:right}.blab{font-size:14px}
 .bhint{display:block;text-align:center;margin-top:6px}
@@ -518,8 +522,8 @@ ${GD_API_KEY?`<button class="btn o" data-a="gdfolder"${GD.busy?' disabled':''}>$
 ;Object.entries({"Fotos de la zona": "Photos of the area", "ID del episodio": "Episode ID", "Foto al registrar": "Photo at registration", "Foto al resolver": "Photo at resolution", "Sin foto": "No photo", "Guardada en Drive": "Saved in Drive", "Pendiente de subir a Drive": "Waiting to upload to Drive", "No se pudo subir a Drive. Se reintentará.": "Could not upload to Drive. It will be retried.", "Conectado. Elige ahora la carpeta de Drive.": "Connected. Now choose the Drive folder.", "No se pudo conectar con Google.": "Could not connect to Google.", "No se pudo abrir el selector de carpetas.": "Could not open the folder picker.", "Las fotos se guardan en el dispositivo hasta que Google Drive esté configurado.": "Photos stay on the device until Google Drive is set up.", "pendientes": "pending", "Carpeta": "Folder", "Aún no has elegido la carpeta de Drive.": "You have not chosen the Drive folder yet.", "fotos pendientes de subir": "photos waiting to upload", "Conectado a Drive": "Connected to Drive", "Conectar Google Drive": "Connect Google Drive", "Cambiar carpeta": "Change folder", "Elegir carpeta": "Choose folder", "Subir fotos pendientes": "Upload pending photos"}).forEach(([k,v])=>{if(!(k in D))D[k]=v});
 /* ===== Figura humana 3D (giro 360º) para elegir la zona afectada ===== */
 const BD={ang:0,drag:null,moved:false,raf:0};
-const BJ=[['Hombro',62,92],['Codo',44,162],['Muñeca',36,228],['Cadera',82,214],['Rodilla',78,304],['Tobillo',76,388]];
-const BM=[['Bíceps',62,92,44,162],['Antebrazo',44,162,36,228],['Muslo',82,214,78,304],['Gemelo',78,304,76,388]];
+const BJ=[['Hombro',56,106],['Codo',49,163],['Muñeca',33,238],['Cadera',80,226],['Rodilla',81,308],['Tobillo',77,392]];
+const BM=[['Bíceps',55,114,50,156,19],['Antebrazo',46,172,34,232,15],['Muslo',80,236,81,298,27],['Gemelo',80,320,77,384,20]];
 const mir=x=>200-x;
 function bodyFace(){return Math.cos(BD.ang*Math.PI/180)>=0?'front':'back'}
 function bodyApply(){const f=document.getElementById('bodyfig');if(!f)return;const c=Math.cos(BD.ang*Math.PI/180);f.style.transform='scaleX('+Math.max(.03,Math.abs(c)).toFixed(3)+')';f.dataset.face=c>=0?'front':'back';const l=document.getElementById('bodyface');if(l)l.textContent=tt(c>=0?'Vista frontal':'Vista dorsal')}
@@ -528,21 +532,30 @@ function bodySpin(delta,ms){cancelAnimationFrame(BD.raf);if(window.matchMedia&&m
   const step=t=>{const k=Math.min(1,(t-t0)/ms);BD.ang=a0+delta*ease(k);bodyApply();if(k<1)BD.raf=requestAnimationFrame(step);else{BD.ang=((BD.ang%360)+360)%360;bodyApply()}};BD.raf=requestAnimationFrame(step)}
 function bodyFig(d){const muscle=d.type=='Músculo',face=bodyFace(),c=Math.cos(BD.ang*Math.PI/180);
   const selSide=(vx)=>face=='front'?(vx=='L'?'D':'I'):(vx=='L'?'I':'D');
-  const limb=(x1,y1,x2,y2,w)=>`<path d="M${x1} ${y1}L${x2} ${y2}" stroke-width="${w}" stroke-linecap="round" class="bl"/>`;
+  const HP="M100 6C86 6 77 18 77 36C77 48 81 58 87 64C90 67 93 69 94 72L94 80C94 84 84 86 76 88C64 91 54 95 49 106C45 117 44 134 42 150C40 164 37 184 33 204C31 216 28 228 26 238C22 248 19 258 22 266C25 272 31 270 33 262C35 254 38 246 40 238C42 226 46 210 49 194C52 180 54 166 56 152C58 138 60 124 64 114C66 132 69 150 69 172C69 186 66 198 66 212C66 222 64 236 65 256C66 276 70 292 70 308C70 328 67 348 66 366C65 380 66 392 64 400C62 406 54 408 52 414C54 419 84 419 88 414C90 408 90 400 90 392C90 372 92 348 93 326C94 312 94 300 94 290C95 272 98 252 100 238";
   const both=(f)=>f(false)+f(true);
-  const body=`<circle cx="100" cy="36" r="22" class="bf"/><rect x="92" y="54" width="16" height="26" rx="6" class="bf"/>
-<path d="M62 84Q100 72 138 84L130 214Q100 224 70 214Z" class="bf"/>
-${both(m=>{const X=v=>m?mir(v):v;return limb(X(62),92,X(44),162,22)+limb(X(44),162,X(36),228,17)+`<circle cx="${X(34)}" cy="238" r="10" class="bf"/>`+limb(X(82),214,X(78),304,28)+limb(X(78),304,X(76),388,21)+`<ellipse cx="${X(74)}" cy="404" rx="14" ry="8" class="bf"/>`})}
-<g class="bk"><path d="M100 80V214" class="bd"/><path d="M74 96Q86 120 98 110M126 96Q114 120 102 110" class="bd" fill="none"/></g><g class="fr"><path d="M100 92V150M80 104Q100 114 120 104" class="bd" fill="none"/></g>`;
-  const mus=muscle?both(m=>BM.map(z=>{const X=v=>m?mir(v):v,vx=m?'R':'L',on=d.loc==z[0]&&d.side==selSide(vx)&&true;
-    return `<g class="hs" data-a="bodypick" data-kind="m" data-loc="${z[0]}" data-vx="${vx}" role="button" aria-label="${z[0]} ${vx=='L'?tt('izquierda en pantalla'):tt('derecha en pantalla')}"><path d="M${X(z[1])} ${z[2]}L${X(z[3])} ${z[4]}" stroke-width="${z[0]=='Muslo'?24:z[0]=='Gemelo'?18:z[0]=='Bíceps'?19:14}" stroke-linecap="round" class="mz${on?' on':''}"/></g>`}).join('')):'';
+  const hh=(id)=>`<use href="#${id}"/><use href="#${id}" transform="translate(200 0) scale(-1 1)"/>`;
+  const body=`<defs><linearGradient id="bgr" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="200" y2="0"><stop offset="0" stop-color="currentColor" stop-opacity=".07"/><stop offset=".3" stop-color="currentColor" stop-opacity=".2"/><stop offset=".5" stop-color="currentColor" stop-opacity=".13"/><stop offset=".7" stop-color="currentColor" stop-opacity=".2"/><stop offset="1" stop-color="currentColor" stop-opacity=".07"/></linearGradient>
+<path id="hp" d="${HP}"/>
+<g id="dfr"><path d="M64 101C74 106 88 106 97 101"/><path d="M62 128C74 140 90 140 98 132"/><path d="M70 150C82 156 92 156 98 152"/><ellipse cx="81" cy="308" rx="7" ry="9"/><path d="M92 66C96 69 98 70 100 70"/></g>
+<g id="dbk"><path d="M70 112C76 126 88 130 96 124"/><path d="M70 112C65 126 70 142 86 148"/><path d="M96 214C86 214 80 222 79 236"/><path d="M82 262C82 270 82 280 82 292"/><path d="M80 328C79 340 78 352 78 362"/></g></defs>
+${hh('hp').replace(/<use /g,'<use class="bfl" ')}<use href="#hp" class="bst"/><use href="#hp" class="bst" transform="translate(200 0) scale(-1 1)"/>
+<g class="bdt fr">${hh('dfr')}<circle cx="100" cy="184" r="1.8" class="bdc"/><path d="M95 58Q100 61 105 58" /><path d="M100 41V51"/></g>
+<g class="bdt bk"><path d="M100 70V238" stroke-dasharray="2 3"/>${hh('dbk')}</g>`;
+  const zon=(on,kind,loc,shape)=>`<g class="hs" data-a="bodypick" data-kind="${kind}" data-loc="${loc}" data-vx="L" role="button" aria-label="${tt(loc)}">${shape.replace('class="zn"','class="zn'+(on?' on':'')+'"')}</g>`;
+  const head=zon(d.type=='Cabeza','z','Cabeza','<ellipse cx="100" cy="36" rx="23" ry="30" class="zn"/>');
+  const mouth=face=='front'?zon(d.type=='Nariz / boca','z','Nariz / boca','<ellipse cx="100" cy="53" rx="11" ry="9" class="zn"/>'):'';
+  const abdo=zon(d.type=='Abdomen','z','Abdomen','<path d="M72 150C72 146 128 146 128 150L126 214C112 222 88 222 74 214Z" class="zn"/>');
+  const mus=muscle?both(m=>BM.map(z=>{const X=v=>m?mir(v):v,vx=m?'R':'L',on=d.loc==z[0]&&d.side==selSide(vx);
+    return `<g class="hs" data-a="bodypick" data-kind="m" data-loc="${z[0]}" data-vx="${vx}" role="button" aria-label="${tt(z[0])}"><path d="M${X(z[1])} ${z[2]}L${X(z[3])} ${z[4]}" stroke-width="${z[5]}" stroke-linecap="round" class="mz${on?' on':''}"/></g>`}).join('')):'';
   const jts=!muscle?both(m=>BJ.map(z=>{const X=v=>m?mir(v):v,vx=m?'R':'L',on=d.loc==z[0]&&d.side==selSide(vx);
-    return `<g class="hs" data-a="bodypick" data-kind="j" data-loc="${z[0]}" data-vx="${vx}" role="button" aria-label="${z[0]}"><circle cx="${X(z[1])}" cy="${z[2]}" r="19" fill="transparent"/><circle cx="${X(z[1])}" cy="${z[2]}" r="${on?12:8}" class="jt${on?' on':''}"/></g>`}).join('')):'';
+    return `<g class="hs" data-a="bodypick" data-kind="j" data-loc="${z[0]}" data-vx="${vx}" role="button" aria-label="${tt(z[0])}"><circle cx="${X(z[1])}" cy="${z[2]}" r="19" fill="transparent"/><circle cx="${X(z[1])}" cy="${z[2]}" r="${on?12:7}" class="jt${on?' on':''}"/></g>`}).join('')):'';
   const sd=d.side=='I'?tt('izquierdo'):d.side=='D'?tt('derecho'):d.side=='A'?tt('ambos lados'):'';
-  const lab=d.loc&&(d.type=='Articulación'||d.type=='Músculo')?`<b>${tt(d.loc)}</b>${sd?' · '+sd:''}`:tt('Toca la zona afectada');
+  const lab=(d.type=='Articulación'||d.type=='Músculo')?(d.loc?`<b>${tt(d.loc)}</b>${sd?' · '+sd:''}`:tt('Toca la zona afectada')):(d.type=='Otro'?`<b>${tt('Otro')}</b>`:`<b>${tt(d.type)}</b>`);
   return `<div class="bodycard"><div class="bseg"><button class="${d.type=='Articulación'?'on':''}" data-a="set" data-k="type" data-v="Articulación">${tt('Articulación')}</button><button class="${muscle?'on':''}" data-a="set" data-k="type" data-v="Músculo">${tt('Músculo')}</button></div>
-<div class="bodywrap"><svg id="bodyfig" viewBox="0 0 200 420" data-face="${face}" style="transform:scaleX(${Math.max(.03,Math.abs(c)).toFixed(3)})" aria-label="${tt('Figura del cuerpo')}">${body}${mus}${jts}</svg></div>
-<div class="bctl"><button class="btn o" data-a="bodyspin" type="button">↻ ${tt('Girar')}</button><span><small id="bodyface">${tt(face=='front'?'Vista frontal':'Vista dorsal')}</small><br><span class="blab">${lab}</span></span></div><small class="bhint">${tt('Arrastra la figura para girarla 360º')}</small></div>`}
+<div class="bodywrap"><svg id="bodyfig" viewBox="0 0 200 420" data-face="${face}" style="transform:scaleX(${Math.max(.03,Math.abs(c)).toFixed(3)})" aria-label="${tt('Figura del cuerpo')}">${body}${head}${mouth}${abdo}${mus}${jts}</svg></div>
+<div class="bctl"><button class="btn o" data-a="bodyspin" type="button">↻ ${tt('Girar')}</button><span><small id="bodyface">${tt(face=='front'?'Vista frontal':'Vista dorsal')}</small><br><span class="blab">${lab}</span></span></div><small class="bhint">${tt('Arrastra la figura para girarla 360º')}</small>
+<div class="chs bchips">${['Piel / tejido','Nariz / boca','Orina / heces','Otro'].map(t=>`<button class="ch${d.type==t?' on':''}" data-a="set" data-k="type" data-v="${t}">${tt(t)}</button>`).join('')}</div></div>`}
 document.addEventListener('pointerdown',e=>{const w=e.target.closest&&e.target.closest('.bodywrap');if(!w)return;cancelAnimationFrame(BD.raf);BD.drag={x:e.clientX,a:BD.ang};BD.moved=false});
 document.addEventListener('pointermove',e=>{if(!BD.drag)return;const dx=e.clientX-BD.drag.x;if(Math.abs(dx)>6)BD.moved=true;if(BD.moved){BD.ang=BD.drag.a+dx*1.1;bodyApply()}});
 const bodyUp=()=>{if(!BD.drag)return;const mv=BD.moved;BD.drag=null;if(mv){const t=Math.round(BD.ang/180)*180;bodySpin(t-BD.ang,350);setTimeout(()=>{BD.moved=false},120)}};
@@ -572,7 +585,7 @@ ${kv('Dolor ahora',d.cmp||d.pain2!=5?d.pain2+'/10':'')}${kv('Respuesta',d.cmp)}$
 const FACES=[['😄','Muy poco'],['🙂','Poco'],['😐','Moderado'],['😟','Fuerte'],['😣','Muy fuerte']];
 ;Object.entries({"Selecciona…": "Select…", "Muy poco": "Very little", "Poco": "A little", "Moderado": "Moderate", "Fuerte": "Strong", "Muy fuerte": "Very strong"}).forEach(([k,v])=>{if(!(k in D))D[k]=v});
 ;D['Inicia sesión para añadir o editar tus datos de emergencia.']='Log in to add or edit your emergency data.';
-function quick(){const d=S.d;return hd('Registrar sangrado',1)+`<div class="card"><b>🩸 Modo rápido</b><br><small>Registra la información básica ahora y completa el resto más tarde.</small></div><h3>¿Dónde se produce?</h3>${bodyFig(d)}<select data-k="type">${TYPES.map(t=>`<option value="${t[0]}"${d.type==t[0]?' selected':''}>${t[1]} ${t[0]}</option>`).join('')}</select>${d.type=='Otro'?`<label>Indica el tipo de sangrado</label>${inp('typeX','text','Escríbelo aquí')}`:''}${LOCS[d.type]?`<label>${tt(d.type=='Músculo'?'¿Qué músculo?':'¿Qué articulación?')}</label><select data-k="loc"><option value="">${tt('Selecciona…')}</option>${LOCS[d.type].map(x=>`<option${d.loc==x?' selected':''}>${x}</option>`).join('')}</select><label>Lado</label><select data-k="side"><option value="">${tt('Selecciona…')}</option>${[['I','Izquierdo'],['D','Derecho'],['A','Ambos']].map(x=>`<option value="${x[0]}"${d.side==x[0]?' selected':''}>${x[1]}</option>`).join('')}</select><label>Localización específica (opcional)</label>${inp('locx','text','Ej. parte trasera de la rodilla…')}`:''}<h3>${tt('Dolor actual')}</h3><div class="faces">${FACES.map((f,n)=>`<button class="face${Math.round(d.pain/2)==n+1?' on':''}" data-a="face" data-v="${n+1}" aria-label="${tt(f[1])}"><span>${f[0]}</span><small>${tt(f[1])}</small></button>`).join('')}</div><h3>¿Por qué ocurrió?</h3><div class="chs">${[['Espontáneo','Espontáneo'],['Después de un golpe','Golpe'],['Después de ejercicio/actividad física','Actividad'],['Otro','Otro']].map(c=>chip('cause',c[0],d.cause,c[1])).join('')}</div>${d.cause=='Otro'?`<label>Indica cómo comenzó</label>${inp('causeX','text','Escríbelo aquí')}`:''}${photoCard(d,['inicio'])}<button class="btn red" data-a="saveq">Registrar ahora</button><button class="btn link" data-a="full">Prefiero el formulario completo</button>`}
+function quick(){const d=S.d;return hd('Registrar sangrado',1)+`<div class="card"><b>🩸 Modo rápido</b><br><small>Registra la información básica ahora y completa el resto más tarde.</small></div><h3>¿Dónde se produce?</h3>${bodyFig(d)}${d.type=='Otro'?`<label>Indica el tipo de sangrado</label>${inp('typeX','text','Escríbelo aquí')}`:''}<label>Localización específica (opcional)</label>${inp('locx','text','Ej. parte trasera de la rodilla…')}<h3>${tt('Dolor actual')}</h3><div class="faces">${FACES.map((f,n)=>`<button class="face${Math.round(d.pain/2)==n+1?' on':''}" data-a="face" data-v="${n+1}" aria-label="${tt(f[1])}"><span>${f[0]}</span><small>${tt(f[1])}</small></button>`).join('')}</div><h3>¿Por qué ocurrió?</h3><div class="chs">${[['Espontáneo','Espontáneo'],['Después de un golpe','Golpe'],['Después de ejercicio/actividad física','Actividad'],['Otro','Otro']].map(c=>chip('cause',c[0],d.cause,c[1])).join('')}</div>${d.cause=='Otro'?`<label>Indica cómo comenzó</label>${inp('causeX','text','Escríbelo aquí')}`:''}${photoCard(d,['inicio'])}<button class="btn red" data-a="saveq">Registrar ahora</button><button class="btn link" data-a="full">Prefiero el formulario completo</button>`}
 
 const cnt=s=>E.filter(d=>d.status==s).length;
 const ICN={"home": "<path d=\"M3 11l9-8 9 8\"/><path d=\"M5 10v10h14V10\"/>", "act": "<path d=\"M3 12h4l3-8 4 16 3-8h4\"/>", "sos": "<circle cx=\"12\" cy=\"12\" r=\"9\"/><circle cx=\"12\" cy=\"12\" r=\"3.5\"/><path d=\"M5.6 5.6l3.9 3.9M14.5 14.5l3.9 3.9M18.4 5.6l-3.9 3.9M9.5 14.5l-3.9 3.9\"/>", "user": "<circle cx=\"12\" cy=\"8\" r=\"4\"/><path d=\"M4 21c0-4 4-6 8-6s8 2 8 6\"/>", "cfg": "<path d=\"M4 6h8M18 6h2M4 12h2M12 12h8M4 18h10M20 18h0\"/><circle cx=\"15\" cy=\"6\" r=\"2.2\"/><circle cx=\"9\" cy=\"12\" r=\"2.2\"/><circle cx=\"17\" cy=\"18\" r=\"2.2\"/>", "lock": "<rect x=\"5\" y=\"11\" width=\"14\" height=\"10\" rx=\"2\"/><path d=\"M8 11V8a4 4 0 0 1 8 0v3\"/>", "out": "<path d=\"M9 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h4\"/><path d=\"M16 8l4 4-4 4M20 12H9\"/>", "drop": "<path d=\"M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z\"/>", "pill": "<rect x=\"3\" y=\"8\" width=\"18\" height=\"8\" rx=\"4\" transform=\"rotate(-45 12 12)\"/><path d=\"M9 9l6 6\"/>", "tools": "<rect x=\"3\" y=\"7\" width=\"18\" height=\"13\" rx=\"2\"/><path d=\"M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 13h18\"/>", "alert": "<path d=\"M12 3L2.5 20h19L12 3z\"/><path d=\"M12 10v4.5M12 17.5h.01\"/>", "bell": "<path d=\"M6 9a6 6 0 0 1 12 0c0 6 2 7.5 2 7.5H4S6 15 6 9z\"/><path d=\"M10 20a2 2 0 0 0 4 0\"/>", "news": "<rect x=\"3\" y=\"4\" width=\"14\" height=\"16\" rx=\"2\"/><path d=\"M17 9h3a1 1 0 0 1 1 1v8a2 2 0 0 1-2 2M7 8h6M7 12h6M7 16h4\"/>", "refresh": "<path d=\"M20 12a8 8 0 1 1-2.5-5.8\"/><path d=\"M20 4v4h-4\"/>", "down": "<path d=\"M12 4v11M7 11l5 5 5-5M5 20h14\"/>", "check": "<path d=\"M5 12.5l4.5 4.5L19 7\"/>"};const ic=(n,c)=>`<svg class="i${c?' '+c:''}" viewBox="0 0 24 24" aria-hidden="true">${ICN[n]}</svg>`;
@@ -790,7 +803,7 @@ ${d.kind=='Profilaxis'?`<h3>${tt('¿Dónde se ha colocado?')}</h3><p class="note
 <button class="btn" data-a="mdsave">${tt('Guardar')}</button>`}
 function navUser(){const u=(CURRENT_USER||(P.name||'').trim().split(/\s+/)[0]||'').trim();if(!u)return 'Perfil';return esc(u.length>8?u.slice(0,7)+'…':u)}
 /* ===== Notificaciones y novedades (RSS) ===== */
-const APP_VERSION='v16';
+const APP_VERSION='v17';
 /* Fuentes RSS: se rellenarán más adelante. Formato: {name:'Nombre',url:'https://…/feed.xml'}
    Si una web no permite leer su feed desde el navegador (CORS), pon en RSS_PROXY la dirección de un proxy propio
    que acepte la URL codificada al final, p. ej. 'https://mi-proxy.example/?url='. */
@@ -872,7 +885,7 @@ else if(a=='set'){if(k=='flt')S.flt=v;else{d[k]=v;if(k=='type'){d.loc='';d.side=
 else if(a=='tog'){const i=d[k].indexOf(v);i<0?d[k].push(v):d[k].splice(i,1)}
 else if(a=='new'){S.d=newD();S.edit=null;S.scr='quick';BD.ang=0;setTimeout(()=>bodySpin(360,1700),250)}
 else if(a=='bodyspin'){bodySpin(180,700);return}
-else if(a=='bodypick'){if(BD.moved)return;const f=document.getElementById('bodyfig'),face=f?f.dataset.face:'front',vx=el.dataset.vx;d.type=el.dataset.kind=='m'?'Músculo':'Articulación';d.loc=el.dataset.loc;d.side=face=='front'?(vx=='L'?'D':'I'):(vx=='L'?'I':'D');KEEPY=window.scrollY}
+else if(a=='bodypick'){if(BD.moved)return;const f=document.getElementById('bodyfig'),face=f?f.dataset.face:'front',vx=el.dataset.vx;if(el.dataset.kind=='z'){d.type=el.dataset.loc;d.loc='';d.side=''}else{d.type=el.dataset.kind=='m'?'Músculo':'Articulación';d.loc=el.dataset.loc;d.side=face=='front'?(vx=='L'?'D':'I'):(vx=='L'?'I':'D')}KEEPY=window.scrollY}
 else if(a=='newwiz'){S.d=newD();S.edit=null;S.step=0;S.scr='wiz'}
 else if(a=='full'){S.step=0;S.scr='wiz'}
 else if(a=='saveq'){S.d.status='Activo';E.unshift(S.d);save();cloudUpEp(S.d);S.scr=null;S.tab='home'}
