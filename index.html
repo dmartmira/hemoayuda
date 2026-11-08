@@ -284,8 +284,10 @@ function cloudDelEp(id){if(!sb||!CLOUD||!id)return;sb.from('episodes').delete().
 function cloudUpMed(d){if(!sb||!CLOUD)return;sb.from('medications').upsert({id:d.id,kind:d.kind,date:d.date,data:d}).then(({error})=>{if(error)console.error('sync medication',error)});}
 let UID=null,CURRENT_USER='',LAST_LOGIN='';
 function cloudUpSos(p){if(!sb||!CLOUD||!UID)return;sb.from('sos_profile').upsert({user_id:UID,data:p}).then(({error})=>{if(error)console.error('sync sos',error)});}
+const BOOT_HASH=location.hash||'';
 const EMAIL_DOMAIN='@hemoayuda.app';
-const emailFor=u=>u.trim().toLowerCase().replace(/[^a-z0-9_.-]/g,'')+EMAIL_DOMAIN;
+const emailFor=u=>{u=u.trim().toLowerCase();return u.includes('@')?u:u.replace(/[^a-z0-9_.-]/g,'')+EMAIL_DOMAIN};
+const REDIR=()=>location.origin+location.pathname;
 const AUTH_ENABLED=true; // login obligatorio activo // pon esto en true para reactivar el login obligatorio
 let AUTHED=!AUTH_ENABLED,AUTH_FATAL=false,AUTH_BUSY=false,AUTH_ERR='',AUTH_LOADING=false;
 const AU={mode:'login',user:'',pass:'',pass2:''};
@@ -314,6 +316,8 @@ async function authInit(){
   if(!sb){AUTH_FATAL=true;R();return;}
   try{
     const{data:{session}}=await sb.auth.getSession();
+    if(session&&/type=(invite|recovery)/.test(BOOT_HASH)){UID=session.user.id;AU.mode='setpw';history.replaceState(null,'',location.pathname);R();return;}
+    if(/error_code=|error=/.test(BOOT_HASH)){AUTH_ERR=tt('El enlace ha caducado o no es válido. Solicita uno nuevo.');AU.mode='forgot';history.replaceState(null,'',location.pathname);}
     if(session){UID=session.user.id;CURRENT_USER=session.user.user_metadata&&session.user.user_metadata.username||session.user.email.split('@')[0];await enterApp();}
   }catch(e){console.error('Supabase init error',e);}
   R();
@@ -328,6 +332,24 @@ function authErrMsg(e){const m=(e&&e.message)||'';
 async function authSubmit(){
   if(!AUTH_ENABLED)return;
   if(!sb){AUTH_FATAL=true;R();return;}
+  if(AU.mode=='forgot'){
+    const m=AU.user.trim().toLowerCase();
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(m)){AUTH_ERR=tt('Escribe un correo válido.');R();return;}
+    AUTH_BUSY=true;AUTH_ERR='';R();
+    try{await sb.auth.resetPasswordForEmail(m,{redirectTo:REDIR()})}catch(e){console.error(e)}
+    AUTH_BUSY=false;AU.sent=true;R();return;
+  }
+  if(AU.mode=='setpw'){
+    if(AU.pass.length<10){AUTH_ERR=tt('La contraseña debe tener al menos 10 caracteres.');R();return;}
+    if(AU.pass!==AU.pass2){AUTH_ERR=tt('Las contraseñas no coinciden.');R();return;}
+    AUTH_BUSY=true;AUTH_ERR='';R();
+    try{
+      const r=await sb.auth.updateUser({password:AU.pass});if(r.error)throw r.error;
+      const u=r.data.user;CURRENT_USER=(u.user_metadata&&u.user_metadata.username)||u.email.split('@')[0];
+      AU.pass='';AU.pass2='';AU.mode='login';await enterApp();
+    }catch(e){console.error('setpw',e);AUTH_BUSY=false;AUTH_ERR=tt('No se pudo guardar la contraseña. Inténtalo de nuevo.');}
+    R();return;
+  }
   const u=AU.user.trim();
   if(u.length<3){AUTH_ERR=tt('El usuario debe tener al menos 3 caracteres.');R();return;}
   if(AU.pass.length<6){AUTH_ERR=tt('La contraseña debe tener al menos 6 caracteres.');R();return;}
@@ -338,7 +360,7 @@ async function authSubmit(){
       res=await sb.auth.signInWithPassword({email,password:AU.pass});
       if(res.error)throw res.error;
     UID=res.data.session.user.id;
-    CURRENT_USER=u;
+    CURRENT_USER=(res.data.session.user.user_metadata&&res.data.session.user.user_metadata.username)||u.split('@')[0];
     AU.pass='';AU.pass2='';
     await enterApp();
   }catch(e){console.error('auth error',e);AUTH_BUSY=false;AUTH_ERR=authErrMsg(e);}
@@ -356,15 +378,23 @@ function userScreen(){return hd(tt('Usuario'),1)+(CURRENT_USER?`<div class="card
 function utilScreen(){return hd(tt('Utilidades'),1)+`<p class="note">${tt('Próximamente más herramientas útiles por aquí.')}</p>`}
 function loadingScreen(){return `<div class="loadwrap"><img class="lg" src="${LOGO}" alt="HemoAyuda"><div class="spin"></div><p>${tt('Cargando información del usuario…')}</p></div>`}
 ;Object.entries({"Solicitar invitación": "Request an invitation", "El acceso es solo por invitación.": "Access is by invitation only."}).forEach(([k,v])=>{if(!(k in D))D[k]=v});
+;Object.entries({"Elige tu contraseña": "Choose your password", "Mínimo 10 caracteres.": "At least 10 characters.", "Nueva contraseña": "New password", "Guardar contraseña": "Save password", "Recuperar contraseña": "Recover password", "Correo electrónico": "Email", "Enviar enlace": "Send link", "Volver": "Back", "Correo o usuario": "Email or username", "¿Has olvidado tu contraseña?": "Forgot your password?", "Si el correo corresponde a una cuenta, recibirás un enlace para crear una nueva contraseña.": "If the email belongs to an account, you will receive a link to create a new password.", "Escribe un correo válido.": "Enter a valid email.", "El enlace ha caducado o no es válido. Solicita uno nuevo.": "The link has expired or is not valid. Request a new one.", "No se pudo guardar la contraseña. Inténtalo de nuevo.": "Could not save the password. Try again."}).forEach(([k,v])=>{if(!(k in D))D[k]=v});
 const INVITE_URL='https://t.me/dmartmira?text='+encodeURIComponent('Hola, quiero solicitar una invitación para usar HemoAyuda.');
 function authScreen(){
   if(AUTH_FATAL)return `<div class="hdr"><img class="lg" src="${LOGO}" alt="HemoAyuda"></div><div class="sosHead"><b>⚠️ ${tt('Sin conexión')}</b><p>${tt('No se ha podido conectar con el servidor. Comprueba tu conexión a internet y vuelve a intentarlo.')}</p></div>`;
-  return `<div class="hdr" style="justify-content:center"><img class="lg" src="${LOGO}" alt="HemoAyuda"></div>
-<h3 style="text-align:center">${tt('Iniciar sesión')}</h3>
-<label>${tt('Usuario')}</label><input type="text" autocapitalize="off" autocomplete="username" data-au="user" value="${esc(AU.user)}">
-<label>${tt('Contraseña')}</label><input type="password" autocomplete="current-password" data-au="pass" value="${esc(AU.pass)}">
-${AUTH_ERR?`<p class="note" style="color:var(--r)">${esc(AUTH_ERR)}</p>`:''}
-<button class="btn" data-a="authsubmit"${AUTH_BUSY?' disabled':''}>${AUTH_BUSY?tt('Un momento…'):tt('Entrar')}</button>
+  const hd0=`<div class="hdr" style="justify-content:center"><img class="lg" src="${LOGO}" alt="HemoAyuda"></div>`;
+  const err=AUTH_ERR?`<p class="note" style="color:var(--r)">${esc(AUTH_ERR)}</p>`:'';
+  const busy=AUTH_BUSY?' disabled':'';
+  if(AU.mode=='setpw')return hd0+`<h3 style="text-align:center">${tt('Elige tu contraseña')}</h3><p class="note" style="text-align:center">${tt('Mínimo 10 caracteres.')}</p>
+<label>${tt('Nueva contraseña')}</label><input type="password" autocomplete="new-password" data-au="pass" value="${esc(AU.pass)}">
+<label>${tt('Confirmar contraseña')}</label><input type="password" autocomplete="new-password" data-au="pass2" value="${esc(AU.pass2)}">${err}
+<button class="btn" data-a="authsubmit"${busy}>${AUTH_BUSY?tt('Un momento…'):tt('Guardar contraseña')}</button>`;
+  if(AU.mode=='forgot')return hd0+`<h3 style="text-align:center">${tt('Recuperar contraseña')}</h3>`+(AU.sent?`<p class="note" style="text-align:center">${tt('Si el correo corresponde a una cuenta, recibirás un enlace para crear una nueva contraseña.')}</p>`:`<label>${tt('Correo electrónico')}</label><input type="email" autocapitalize="off" autocomplete="email" data-au="user" value="${esc(AU.user)}">${err}<button class="btn" data-a="authsubmit"${busy}>${AUTH_BUSY?tt('Un momento…'):tt('Enviar enlace')}</button>`)+`<button class="btn link" data-a="authmode" data-v="login">${tt('Volver')}</button>`;
+  return hd0+`<h3 style="text-align:center">${tt('Iniciar sesión')}</h3>
+<label>${tt('Correo o usuario')}</label><input type="text" autocapitalize="off" autocomplete="username" data-au="user" value="${esc(AU.user)}">
+<label>${tt('Contraseña')}</label><input type="password" autocomplete="current-password" data-au="pass" value="${esc(AU.pass)}">${err}
+<button class="btn" data-a="authsubmit"${busy}>${AUTH_BUSY?tt('Un momento…'):tt('Entrar')}</button>
+<button class="btn link" data-a="authmode" data-v="forgot">${tt('¿Has olvidado tu contraseña?')}</button>
 <a class="btn o" style="text-align:center;text-decoration:none" href="${INVITE_URL}" target="_blank" rel="noopener noreferrer">${tt('Solicitar invitación')}</a>
 <p class="note" style="text-align:center">${tt('El acceso es solo por invitación.')}</p>`;
 }
@@ -647,7 +677,7 @@ ${d.kind=='Profilaxis'?`<h3>${tt('¿Dónde se ha colocado?')}</h3><p class="note
 <button class="btn" data-a="mdsave">${tt('Guardar')}</button>`}
 function navUser(){const u=(CURRENT_USER||(P.name||'').trim().split(/\s+/)[0]||'').trim();if(!u)return 'Perfil';return esc(u.length>8?u.slice(0,7)+'…':u)}
 /* ===== Notificaciones y novedades (RSS) ===== */
-const APP_VERSION='v11';
+const APP_VERSION='v12';
 /* Fuentes RSS: se rellenarán más adelante. Formato: {name:'Nombre',url:'https://…/feed.xml'}
    Si una web no permite leer su feed desde el navegador (CORS), pon en RSS_PROXY la dirección de un proxy propio
    que acepte la URL codificada al final, p. ej. 'https://mi-proxy.example/?url='. */
@@ -699,7 +729,7 @@ document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!
 if(a!='del'&&a!='clr')S.del=false;
 if(a=='navgo'){if(v=='config'){S.scr='config'}else if(v=='user'){S.scr='userinfo'}else{S.scr='priv'}R();return}
 if(a=='utilgo'){S.scr='util';R();return}
-if(a=='authmode'){AU.mode=v;AUTH_ERR='';R();return}
+if(a=='authmode'){AU.mode=v;AUTH_ERR='';AU.sent=false;R();return}
 if(a=='authsubmit'){authSubmit();return}
 if(a=='logout'){authLogout();return}
 if(a=='sosedit'){if(AUTH_ENABLED&&!UID)return;S.pd=Object.assign({},P);S.scr='sosedit'}

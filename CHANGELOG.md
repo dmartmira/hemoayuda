@@ -8,6 +8,8 @@
 
 - **Acceso:** la pantalla de inicio solo tiene «Entrar» y «Solicitar invitación»; ya no se pueden crear cuentas desde la app.
 
+- **Acceso:** entrada con correo o usuario, recuperación de contraseña por correo y pantalla para elegir contraseña al aceptar una invitación.
+
 ---
 
 ## Actualización: **02/11/2026** (BETA)
