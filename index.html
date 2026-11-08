@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://accounts.google.com https://apis.google.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://*.google.com https://*.gstatic.com https://*.googleusercontent.com; connect-src 'self' https://pgypvwfpsxuhgcyjztbc.supabase.co wss://pgypvwfpsxuhgcyjztbc.supabase.co https://www.googleapis.com https://accounts.google.com; frame-src https://accounts.google.com https://docs.google.com https://drive.google.com https://content.googleapis.com; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://pgypvwfpsxuhgcyjztbc.supabase.co wss://pgypvwfpsxuhgcyjztbc.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>HemoAyuda</title><link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32.png"><link rel="icon" type="image/png" sizes="192x192" href="images/icon-192.png"><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#800020"><meta name="apple-mobile-web-app-title" content="HemoAyuda"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
 <style>
@@ -448,6 +448,7 @@ return hd('Registrar sangrado',1)+`<div class="dots">${[0,1,2,4,5].map(i=>`<i cl
 ;Object.entries({"¿Eliminar el episodio?": "Delete this episode?", "¿Borrar todos los datos?": "Delete all data?", "Se eliminará de forma permanente. Esta acción no se puede deshacer.": "It will be deleted permanently. This cannot be undone.", "Se eliminarán de forma permanente todos los episodios guardados en este dispositivo. Esta acción no se puede deshacer.": "All episodes saved on this device will be deleted permanently. This cannot be undone.", "Sí, eliminar": "Yes, delete", "Anota cómo sigues pasados 15, 30 o 60 minutos, o cuando quieras.": "Note how you are doing after 15, 30 or 60 minutes, or whenever you like.", "Otro momento": "Another time", "Sin registros de evolución.": "No progress entries.", "¿Cuándo?": "When?", "Guardar evolución": "Save progress", "Evolución": "Progress", "Dolor actual": "Current pain", "Comparado con el inicio": "Compared with the start", "¿El sangrado parece controlado?": "Does the bleed seem under control?", "Controlado": "Controlled", "Mucho mejor": "Much better", "Algo mejor": "Slightly better", "Igual": "Same", "Peor": "Worse", "Mucho peor": "Much worse", "Sí": "Yes", "No": "No", "No estoy seguro": "Not sure"}).forEach(([k,v])=>{if(!(k in D))D[k]=v});
 ;Object.entries({'¿Qué músculo?':'Which muscle?','¿Qué articulación?':'Which joint?'}).forEach(([k,v])=>{if(!(k in D))D[k]=v});
 /* ===== Fotos del sangrado + Google Drive (carpeta de Manuel / Mes Año / ID_inicio, ID_resuelto) ===== */
+const PHOTOS_ON=false; // fotos + Google Drive desactivadas por ahora
 const GD_CLIENT_ID='',GD_API_KEY='';
 const GD_SCOPE='https://www.googleapis.com/auth/drive.file';
 const MESES_G=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
@@ -482,7 +483,7 @@ document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset||!t.
   const ph=t.dataset.ph,d=photoTarget();if(!d)return;
   try{const blob=await compressImg(f);d.photos=d.photos||{};const old=d.photos[ph]||{};d.photos[ph]={name:codeOf(d)+'_'+ph+'.jpg',status:'pending',ts:Date.now(),fileId:old.fileId};
     THUMB[d.id+'_'+ph]=URL.createObjectURL(blob);await idbPut(d.id+'_'+ph,blob);photoSync(d);R();await tryUpload(d,ph);R()}catch(err){console.error('photo',err)}});
-function photoCard(d,phs){const ph=d.photos||{},L={inicio:'Foto al registrar',resuelto:'Foto al resolver'};
+function photoCard(d,phs){if(!PHOTOS_ON)return '';const ph=d.photos||{},L={inicio:'Foto al registrar',resuelto:'Foto al resolver'};
   return `<div class="card"><b>${tt('Fotos de la zona')}</b><p class="note">${tt('ID del episodio')}: <b>${codeOf(d)}</b></p>${phs.map(k=>{const x=ph[k],can=k=='resuelto'?(!d.locked||!x):!d.locked;
   const st=!x?tt('Sin foto'):(x.status=='ok'?'✓ '+tt('Guardada en Drive')+': '+esc(x.name):tt('Pendiente de subir a Drive'));
   return `<div class="phr">${THUMB[d.id+'_'+k]?`<img src="${THUMB[d.id+'_'+k]}" alt="">`:''}<div class="phi"><b>${tt(L[k])}</b><small>${st}</small></div>${can?`<label class="cam" aria-label="${tt(L[k])}"><input type="file" accept="image/*" capture="environment" data-ph="${k}" hidden><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></label>`:''}</div>`}).join('')}</div>`}
@@ -494,7 +495,7 @@ async function gdPick(){if(!GD_CLIENT_ID||!GD_API_KEY)return;try{if(!gdReady())a
 async function gdSync(){if(!gdReady()&&GD_CLIENT_ID)try{await gdAuth('')}catch(e){GD.msg=tt('No se pudo conectar con Google.');R();return}
   GD.busy=true;R();for(const d of E)for(const ph of ['inicio','resuelto'])if(d.photos&&d.photos[ph]&&d.photos[ph].status=='pending')await tryUpload(d,ph);GD.busy=false;R()}
 const pendingPhotos=()=>E.reduce((n,d)=>n+['inicio','resuelto'].filter(k=>d.photos&&d.photos[k]&&d.photos[k].status=='pending').length,0);
-function gdCard(){const pend=pendingPhotos();
+function gdCard(){if(!PHOTOS_ON)return '';const pend=pendingPhotos();
   if(!GD_CLIENT_ID)return `<div class="card"><b>Google Drive</b><p class="note">${tt('Las fotos se guardan en el dispositivo hasta que Google Drive esté configurado.')}${pend?' ('+pend+' '+tt('pendientes')+')':''}</p></div>`;
   return `<div class="card"><b>Google Drive</b><p class="note">${GD.root?tt('Carpeta')+': <b>'+esc(GD.root.name)+'</b>':tt('Aún no has elegido la carpeta de Drive.')}${pend?'<br>'+pend+' '+tt('fotos pendientes de subir'):''}</p>${GD.msg?`<p class="note" style="color:var(--r)">${esc(GD.msg)}</p>`:''}
 <button class="btn${gdReady()?' o':''}" data-a="gdconnect"${GD.busy?' disabled':''}>${gdReady()?tt('Conectado a Drive'):tt('Conectar Google Drive')}</button>
@@ -742,7 +743,7 @@ ${d.kind=='Profilaxis'?`<h3>${tt('¿Dónde se ha colocado?')}</h3><p class="note
 <button class="btn" data-a="mdsave">${tt('Guardar')}</button>`}
 function navUser(){const u=(CURRENT_USER||(P.name||'').trim().split(/\s+/)[0]||'').trim();if(!u)return 'Perfil';return esc(u.length>8?u.slice(0,7)+'…':u)}
 /* ===== Notificaciones y novedades (RSS) ===== */
-const APP_VERSION='v14';
+const APP_VERSION='v15';
 /* Fuentes RSS: se rellenarán más adelante. Formato: {name:'Nombre',url:'https://…/feed.xml'}
    Si una web no permite leer su feed desde el navegador (CORS), pon en RSS_PROXY la dirección de un proxy propio
    que acepte la URL codificada al final, p. ej. 'https://mi-proxy.example/?url='. */

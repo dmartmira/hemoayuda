@@ -12,7 +12,7 @@
 
 - **Acceso:** mensaje único «Los datos introducidos no son correctos» y bloqueo temporal tras 3 intentos fallidos (5 min, y se duplica con cada nuevo fallo).
 
-- **Fotos:** botón de cámara al registrar el sangrado (modo rápido y formulario completo) y al resolverlo; cada episodio tiene un ID único (HA-XXXXXXXX) y las fotos se nombran `ID_inicio` e `ID_resuelto`. Subida a Google Drive en la carpeta elegida, dentro de una subcarpeta «Mes Año» (requiere configurar Google Cloud).
+- **ID de episodio** único (HA-XXXXXXXX) visible en el resumen y en el CSV. La función de fotos y subida a Google Drive está preparada pero desactivada por ahora. (Descripción prevista: botón de cámara al registrar el sangrado (modo rápido y formulario completo) y al resolverlo; cada episodio tiene un ID único (HA-XXXXXXXX) y las fotos se nombran `ID_inicio` e `ID_resuelto`. Subida a Google Drive en la carpeta elegida, dentro de una subcarpeta «Mes Año» (requiere configurar Google Cloud).)
 
 ---
 
