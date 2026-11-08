@@ -330,20 +330,13 @@ async function authSubmit(){
   if(!sb){AUTH_FATAL=true;R();return;}
   const u=AU.user.trim();
   if(u.length<3){AUTH_ERR=tt('El usuario debe tener al menos 3 caracteres.');R();return;}
-  if(AU.pass.length<(AU.mode=='register'?10:6)){AUTH_ERR=tt(AU.mode=='register'?'La contraseña debe tener al menos 10 caracteres.':'La contraseña debe tener al menos 6 caracteres.');R();return;}
-  if(AU.mode=='register'&&AU.pass!==AU.pass2){AUTH_ERR=tt('Las contraseñas no coinciden.');R();return;}
+  if(AU.pass.length<6){AUTH_ERR=tt('La contraseña debe tener al menos 6 caracteres.');R();return;}
   AUTH_BUSY=true;AUTH_ERR='';R();
   const email=emailFor(u);
   try{
     let res;
-    if(AU.mode=='register'){
-      res=await sb.auth.signUp({email,password:AU.pass,options:{data:{username:u}}});
-      if(res.error)throw res.error;
-      if(!res.data.session){res=await sb.auth.signInWithPassword({email,password:AU.pass});if(res.error)throw res.error;}
-    }else{
       res=await sb.auth.signInWithPassword({email,password:AU.pass});
       if(res.error)throw res.error;
-    }
     UID=res.data.session.user.id;
     CURRENT_USER=u;
     AU.pass='';AU.pass2='';
@@ -362,16 +355,18 @@ async function authLogout(){
 function userScreen(){return hd(tt('Usuario'),1)+(CURRENT_USER?`<div class="card">${kv(tt('Usuario'),CURRENT_USER)}${kv(tt('ID de usuario'),UID)}${kv(tt('Último inicio de sesión'),LAST_LOGIN)}</div><button class="btn o" data-a="logout">${tt('Cerrar sesión')}</button>`:`<p class="note">${tt('Inicia sesión para ver tu información de usuario.')}</p>`)}
 function utilScreen(){return hd(tt('Utilidades'),1)+`<p class="note">${tt('Próximamente más herramientas útiles por aquí.')}</p>`}
 function loadingScreen(){return `<div class="loadwrap"><img class="lg" src="${LOGO}" alt="HemoAyuda"><div class="spin"></div><p>${tt('Cargando información del usuario…')}</p></div>`}
+;Object.entries({"Solicitar invitación": "Request an invitation", "El acceso es solo por invitación.": "Access is by invitation only."}).forEach(([k,v])=>{if(!(k in D))D[k]=v});
+const INVITE_URL='https://t.me/dmartmira?text='+encodeURIComponent('Hola, quiero solicitar una invitación para usar HemoAyuda.');
 function authScreen(){
   if(AUTH_FATAL)return `<div class="hdr"><img class="lg" src="${LOGO}" alt="HemoAyuda"></div><div class="sosHead"><b>⚠️ ${tt('Sin conexión')}</b><p>${tt('No se ha podido conectar con el servidor. Comprueba tu conexión a internet y vuelve a intentarlo.')}</p></div>`;
-  const reg=AU.mode=='register';
   return `<div class="hdr" style="justify-content:center"><img class="lg" src="${LOGO}" alt="HemoAyuda"></div>
-<div class="seg" style="margin-top:4px"><button class="${!reg?'on':''}" data-a="authmode" data-v="login">${tt('Iniciar sesión')}</button><button class="${reg?'on':''}" data-a="authmode" data-v="register">${tt('Crear cuenta')}</button></div>
+<h3 style="text-align:center">${tt('Iniciar sesión')}</h3>
 <label>${tt('Usuario')}</label><input type="text" autocapitalize="off" autocomplete="username" data-au="user" value="${esc(AU.user)}">
-<label>${tt('Contraseña')}</label><input type="password" autocomplete="${reg?'new-password':'current-password'}" data-au="pass" value="${esc(AU.pass)}">
-${reg?`<label>${tt('Confirmar contraseña')}</label><input type="password" autocomplete="new-password" data-au="pass2" value="${esc(AU.pass2)}">`:''}
+<label>${tt('Contraseña')}</label><input type="password" autocomplete="current-password" data-au="pass" value="${esc(AU.pass)}">
 ${AUTH_ERR?`<p class="note" style="color:var(--r)">${esc(AUTH_ERR)}</p>`:''}
-<button class="btn" data-a="authsubmit"${AUTH_BUSY?' disabled':''}>${AUTH_BUSY?tt('Un momento…'):(reg?tt('Crear cuenta'):tt('Entrar'))}</button>`;
+<button class="btn" data-a="authsubmit"${AUTH_BUSY?' disabled':''}>${AUTH_BUSY?tt('Un momento…'):tt('Entrar')}</button>
+<a class="btn o" style="text-align:center;text-decoration:none" href="${INVITE_URL}" target="_blank" rel="noopener noreferrer">${tt('Solicitar invitación')}</a>
+<p class="note" style="text-align:center">${tt('El acceso es solo por invitación.')}</p>`;
 }
 
 const tyN=d=>d.type=='Otro'&&d.typeX?'Otro: '+d.typeX:d.type;
@@ -652,7 +647,7 @@ ${d.kind=='Profilaxis'?`<h3>${tt('¿Dónde se ha colocado?')}</h3><p class="note
 <button class="btn" data-a="mdsave">${tt('Guardar')}</button>`}
 function navUser(){const u=(CURRENT_USER||(P.name||'').trim().split(/\s+/)[0]||'').trim();if(!u)return 'Perfil';return esc(u.length>8?u.slice(0,7)+'…':u)}
 /* ===== Notificaciones y novedades (RSS) ===== */
-const APP_VERSION='v10';
+const APP_VERSION='v11';
 /* Fuentes RSS: se rellenarán más adelante. Formato: {name:'Nombre',url:'https://…/feed.xml'}
    Si una web no permite leer su feed desde el navegador (CORS), pon en RSS_PROXY la dirección de un proxy propio
    que acepte la URL codificada al final, p. ej. 'https://mi-proxy.example/?url='. */

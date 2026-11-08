@@ -6,6 +6,8 @@
 
 - **Seguridad:** al crear una cuenta, la contraseña debe tener al menos 10 caracteres.
 
+- **Acceso:** la pantalla de inicio solo tiene «Entrar» y «Solicitar invitación»; ya no se pueden crear cuentas desde la app.
+
 ---
 
 ## Actualización: **02/11/2026** (BETA)
