@@ -1,6 +1,7 @@
 # Registro de cambios — HemoAyuda
 ## Actualización: **08/11/2026** (BETA)
 
+- **Inicio:** el registro rápido está ahora en la pantalla principal, con la figura 3D, la barra de dolor (1-10) dentro de la figura, «Otro» con descripción y el motivo en desplegable. Se elimina la sección de novedades de la ventana principal.
 - **Registro rápido:** nueva figura humana 3D realista (modelo muscular) que se puede girar 360º (frontal/dorsal) arrastrando o con el botón «Girar»; se toca la articulación, músculo o zona afectada y se marca en rojo. Si el dispositivo no admite 3D se usa la figura anterior.
 - **Seguridad:** el cliente de Supabase se sirve ahora desde el propio sitio con la versión fijada (2.119.0) en lugar de una CDN externa.
 - **Seguridad:** se añade una política de seguridad de contenido (CSP) que limita desde dónde se pueden cargar scripts y a qué servidores se puede conectar la app.
