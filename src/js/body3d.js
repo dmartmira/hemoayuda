@@ -12,7 +12,7 @@ export function init(){
   const dl=new THREE.DirectionalLight(0xffffff,1.4);dl.position.set(1,2,3);sc.add(dl);
   cam=new THREE.OrthographicCamera(-VW/2,VW/2,VT,VT-VH,.1,10);cam.position.set(0,0,4);
   const l=new GLTFLoader();l.setMeshoptDecoder(MeshoptDecoder);
-  l.load('./models/cuerpo.glb',g=>{model=g.scene;sc.add(model);ready=true;ok()},undefined,e=>ko(e));
+  l.load('./assets/models/cuerpo.glb',g=>{model=g.scene;sc.add(model);ready=true;ok()},undefined,e=>ko(e));
  }catch(e){ko(e)}})}
 export function attach(h){host=h;if(!ready||!h)return;if(canvas.parentNode!==h)h.insertBefore(canvas,h.firstChild);size()}
 function size(){if(!host)return;const w=host.clientWidth||260,h=Math.round(w*VH/VW);r.setPixelRatio(Math.min(devicePixelRatio||1,2));r.setSize(w,h,false);canvas.style.width=w+'px';canvas.style.height=h+'px';host.style.height=h+'px'}
